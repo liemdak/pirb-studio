@@ -133,20 +133,24 @@ class UpdaterTests(unittest.TestCase):
         class Handler(BaseHTTPRequestHandler):
             def log_message(self,*args):pass
             def do_GET(self):
+                if self.path=='/redirect':
+                    self.send_response(302);self.send_header('Location','/asset');self.send_header('Content-Length','0');self.end_headers();return
                 data=b'[{"example":true}]'
                 self.send_response(200 if self.path!='/fail' else 503)
                 self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
         server=ThreadingHTTPServer(('127.0.0.1',0),Handler)
         thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
         try:
-            for route,limit,expected in [('/',100,True),('/',2,False),('/fail',100,False)]:
+            for route,limit,expected in [('/',100,True),('/redirect',100,True),('/',2,False),('/fail',100,False)]:
                 loop=QEventLoop();result=[]
-                def ok(data):result.append(True);loop.quit()
+                body=[]
+                def ok(data):result.append(True);body.append(data);loop.quit()
                 def fail():result.append(False);loop.quit()
                 self.controller._get(f'http://127.0.0.1:{server.server_port}'+route,limit,ok,fail)
                 timeout=QTimer();timeout.setSingleShot(True);timeout.timeout.connect(loop.quit);timeout.start(5000)
                 loop.exec();timeout.stop()
                 self.assertEqual(result,[expected]);self.assertIsNone(self.controller._reply)
+                if expected:self.assertEqual(body,[b'[{"example":true}]'])
         finally:server.shutdown();server.server_close()
 
 

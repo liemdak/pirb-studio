@@ -1,4 +1,4 @@
-# Validation status — 0.9.0
+# Validation status — 0.9.1
 
 Local builds use Linux and official Windows x64 runtime inputs. Tests cover language changes without preference resets, persistence, dynamic image entries, menus, layout bounds, transform/contact regression and preference migration. UI images are rendered offscreen.
 

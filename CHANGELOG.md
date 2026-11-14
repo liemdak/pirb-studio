@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.1 — 2026-11-14
+
+- Fix Qt redirect policy conversion so public GitHub asset downloads follow HTTPS redirects to the release CDN.
+- Require a successful final HTTP 200 response and test redirect response bodies.
+
 ## 0.9.0 — 2026-11-14
 
 - Public GitHub repository and anonymous release checks; no GitHub login/token in the app.

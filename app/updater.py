@@ -159,7 +159,7 @@ class UpdateController(QObject):
         request.setRawHeader(b'Accept', b'application/vnd.github+json' if url.startswith('https://api.github.com/') else b'application/octet-stream')
         request.setTransferTimeout(20000)
         request.setAttribute(QNetworkRequest.Attribute.RedirectPolicyAttribute,
-                             QNetworkRequest.RedirectPolicy.NoLessSafeRedirectPolicy)
+                             QNetworkRequest.RedirectPolicy.NoLessSafeRedirectPolicy.value)
         reply = self.network.get(request)
         self._reply = reply
         self.statusChanged.emit()
@@ -190,7 +190,8 @@ class UpdateController(QObject):
         def finished():
             deadline.stop()
             if reply.isOpen(): read()
-            failed = state['error'] or reply.error() != QNetworkReply.NetworkError.NoError
+            status = reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
+            failed = state['error'] or reply.error() != QNetworkReply.NetworkError.NoError or status != 200
             if stream:
                 try: stream.close()
                 except OSError: failed = True
