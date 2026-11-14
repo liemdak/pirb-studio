@@ -53,6 +53,7 @@ def verify():
             assert {i.dll.decode().lower() for i in pe.DIRECTORY_ENTRY_IMPORT} <= expected_imports
             assert any(e.id == 3 for e in pe.DIRECTORY_ENTRY_RESOURCE.entries)
             assert pe.VS_FIXEDFILEINFO[0].FileVersionMS == 8
+            assert pe.VS_FIXEDFILEINFO[0].FileVersionLS == int(VERSION.split('.')[2]) << 16
             pe.close()
     for row in (folder / 'SHA256SUMS.txt').read_text().splitlines():
         expected, name = row.split('  ', 1)

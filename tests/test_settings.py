@@ -127,7 +127,8 @@ class SettingsTests(unittest.TestCase):
                 tabs = self.d.findChild(QTabWidget)
                 for index in range(tabs.count()):
                     tabs.setCurrentIndex(index); self.app.processEvents(); self.d.update_preview()
-                    self.assertEqual(tabs.widget(index).horizontalScrollBar().maximum(), 0)
+                    self.assertEqual(tabs.widget(index).horizontalScrollBar().maximum(), 0,
+                                     f'{language}, window={size}, tab={index}')
                     self.assertFalse(self.d.grab().isNull())
 
     def test_scene_and_wing_contact_regression(self):

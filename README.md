@@ -1,6 +1,6 @@
 # PIRB Studio
 
-[Tiếng Việt](README_VI.md) · **Version 0.8.0** · Windows x64
+[Tiếng Việt](README_VI.md) · **Version 0.8.1** · Windows x64
 
 An animated pigeon desktop companion that reacts to typing and mouse clicks. Customize the scene, expressions, effects and sounds in a Pythenians-inspired purple, gold and ivory Settings window.
 
@@ -8,7 +8,7 @@ An animated pigeon desktop companion that reacts to typing and mouse clicks. Cus
 
 ## Install
 
-Download **PIRB_Studio_0.8.0_Windows_x64_Setup.exe** from the repository's **Releases**. GitHub's **Code → Download ZIP** downloads source code, not the ready-to-run app.
+Download **PIRB_Studio_0.8.1_Windows_x64_Setup.exe** from the repository's **Releases**. GitHub's **Code → Download ZIP** downloads source code, not the ready-to-run app.
 
 1. Exit old PIRB using its system-tray menu.
 2. Run Setup and confirm the installation.
@@ -16,9 +16,9 @@ Download **PIRB_Studio_0.8.0_Windows_x64_Setup.exe** from the repository's **Rel
 
 Python, Qt, artwork, sounds and both Settings languages are bundled. No Python, pip, WinRAR or administrator rights are needed. Setup and the app work offline after downloading. No separate Settings patch is needed.
 
-Install location: `%LOCALAPPDATA%\Programs\PIRBStudio\0.8.0\PIRB`.
+Install location: `%LOCALAPPDATA%\Programs\PIRBStudio\0.8.1\PIRB`.
 
-Portable alternative: extract the **entire** `PIRB_Studio_0.8.0_Windows_x64_Portable.zip`, then run `PIRB\PIRB.exe`. Keep `_internal` beside the executable. Do not run inside an archive viewer. Portable also stores preferences in your Windows user profile.
+Portable alternative: extract the **entire** `PIRB_Studio_0.8.1_Windows_x64_Portable.zip`, then run `PIRB\PIRB.exe`. Keep `_internal` beside the executable. Do not run inside an archive viewer. Portable also stores preferences in your Windows user profile.
 
 ## Requirements
 
@@ -53,7 +53,7 @@ Changes save automatically. Only one instance runs at a time. Startup with Windo
 
 Exit the old app before upgrading. Existing preferences are reused. Old version folders/downloads are preserved, not automatically deleted.
 
-For an installed copy, exit PIRB and use **Windows Settings → Apps → PIRB Studio 0.8.0 → Uninstall**, or run its `Uninstall.exe`. Preferences/custom images remain. For portable, exit and delete its extracted folder; the included uninstaller targets the installed location only.
+For an installed copy, exit PIRB and use **Windows Settings → Apps → PIRB Studio 0.8.1 → Uninstall**, or run its `Uninstall.exe`. Preferences/custom images remain. For portable, exit and delete its extracted folder; the included uninstaller targets the installed location only.
 
 If startup fails, run `_internal\support\DIAGNOSTICS.bat`. Errors may be written to `%LOCALAPPDATA%\PIRBDesktop\startup-error.log`. For sound issues check Windows output/Volume Mixer and the Sound tab. If another app's keys do not animate, test with a normal non-elevated app. Report the exact message, PIRB version and Windows version. The community build is unsigned and Windows may warn about its publisher; the app does not require disabling protection.
 

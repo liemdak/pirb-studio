@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.1 — 2026-11-14
+
+- Stack Settings labels above fields on narrow windows to accommodate Windows font metrics.
+- Include the Linux QtMultimedia CI dependency and attach build assets safely to existing releases.
+
 ## 0.8.0 — 2026-11-14
 
 - Integrated Pythenians Settings: purple, gold, ivory, Greek ornament and olive accents.
