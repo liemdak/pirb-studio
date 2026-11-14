@@ -155,6 +155,15 @@ class SettingsDialog(QDialog):
             note=QLabel('Chưa tìm thấy đầu ra âm thanh trong môi trường hiện tại. Các tùy chọn vẫn được lưu.');note.setWordWrap(True);sf.addRow(note)
         for note in sound.findChildren(QLabel):
             if note.wordWrap():note.setObjectName('hint')
+        updates=QWidget();uf=QFormLayout(updates);self.add_scroll_tab(tabs,updates,'Cập nhật')
+        self.section(uf,'Luôn sẵn sàng với bản mới','Python đã có sẵn trong bộ cài. Bạn không cần tải hoặc cài Python riêng.')
+        uf.addRow('Phiên bản hiện tại',QLabel(VERSION))
+        for title,key in [('Tự kiểm tra khi mở app và mỗi 6 giờ','check_updates'),('Nhận thông báo bản thử nghiệm','include_prereleases')]:
+            check=QCheckBox(title);check.setChecked(owner.prefs[key]);self.controls[key]=check;uf.addRow(check);check.toggled.connect(self.apply)
+        note=QLabel('Khi có bản mới, PIRB sẽ hỏi trước. Chỉ khi bạn đồng ý, app mới tải bộ cài, kiểm tra SHA256 và mở trình cài đặt.');note.setWordWrap(True);note.setObjectName('hint');uf.addRow(note)
+        self.update_status=QLabel();self.update_status.setWordWrap(True);self.update_status.setProperty('dynamic_text',True);uf.addRow(self.update_status)
+        self.check_update_button=QPushButton('Kiểm tra cập nhật ngay');self.check_update_button.clicked.connect(lambda:owner.updater.check(manual=True));uf.addRow(self.check_update_button)
+        owner.updater.statusChanged.connect(self.refresh_update_status)
         footer=QHBoxLayout();saved=QLabel('Mọi thay đổi được lưu tự động');saved.setObjectName('hint');footer.addWidget(saved);footer.addStretch()
         close=QPushButton('Hoàn tất');close.setObjectName('primary');close.clicked.connect(self.close);footer.addWidget(close);layout.addLayout(footer)
         screen=self.screen().availableGeometry();self.resize(min(self.width(),screen.width()-24),min(self.height(),screen.height()-48))
@@ -176,7 +185,7 @@ class SettingsDialog(QDialog):
         self.setWindowTitle(self.text('PIRB Studio · Tùy chỉnh')+' · '+VERSION)
         for widget in self.findChildren(QWidget):
             if isinstance(widget,(QLabel,QPushButton,QCheckBox)):
-                if widget is self.preview or widget.objectName()=='value':continue
+                if widget is self.preview or widget.objectName()=='value' or widget.property('dynamic_text'):continue
                 source=widget.property('source_text')
                 if source is None:source=widget.text();widget.setProperty('source_text',source)
                 widget.setText(self.text(source))
@@ -194,6 +203,11 @@ class SettingsDialog(QDialog):
                 source=widget.property('source_accessible_name')
                 if source is None:source=widget.accessibleName();widget.setProperty('source_accessible_name',source)
                 widget.setAccessibleName(self.text(source))
+        self.refresh_update_status()
+    def refresh_update_status(self):
+        updater=self.owner.updater
+        self.update_status.setText(self.text(updater.status).format(**updater.status_values))
+        self.check_update_button.setEnabled(not updater.busy)
     def change_language(self):
         prefs=dict(self.owner.prefs);prefs['language']=self.language.currentData()
         self.owner.apply_preferences(prefs);self.retranslate_ui()

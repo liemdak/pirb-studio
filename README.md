@@ -1,6 +1,6 @@
 # PIRB Studio
 
-[Tiếng Việt](README_VI.md) · **Version 0.8.1** · Windows x64
+[Tiếng Việt](README_VI.md) · **Version 0.9.0** · Windows x64
 
 An animated pigeon desktop companion that reacts to typing and mouse clicks. Customize the scene, expressions, effects and sounds in a Pythenians-inspired purple, gold and ivory Settings window.
 
@@ -8,17 +8,17 @@ An animated pigeon desktop companion that reacts to typing and mouse clicks. Cus
 
 ## Install
 
-Download **PIRB_Studio_0.8.1_Windows_x64_Setup.exe** from the repository's **Releases**. GitHub's **Code → Download ZIP** downloads source code, not the ready-to-run app.
+Download **PIRB_Studio_0.9.0_Windows_x64_Setup.exe** from the repository's **Releases**. GitHub's **Code → Download ZIP** downloads source code, not the ready-to-run app.
 
 1. Exit old PIRB using its system-tray menu.
 2. Run Setup and confirm the installation.
 3. Open **PIRB Studio** from Desktop or Start Menu.
 
-Python, Qt, artwork, sounds and both Settings languages are bundled. No Python, pip, WinRAR or administrator rights are needed. Setup and the app work offline after downloading. No separate Settings patch is needed.
+Python, Qt, artwork, sounds and both Settings languages are bundled. No Python, pip, WinRAR or administrator rights are needed. Setup and the companion work offline after downloading; optional update checks need internet. No separate Settings patch is needed.
 
-Install location: `%LOCALAPPDATA%\Programs\PIRBStudio\0.8.1\PIRB`.
+Install location: `%LOCALAPPDATA%\Programs\PIRBStudio\0.9.0\PIRB`.
 
-Portable alternative: extract the **entire** `PIRB_Studio_0.8.1_Windows_x64_Portable.zip`, then run `PIRB\PIRB.exe`. Keep `_internal` beside the executable. Do not run inside an archive viewer. Portable also stores preferences in your Windows user profile.
+Portable alternative: extract the **entire** `PIRB_Studio_0.9.0_Windows_x64_Portable.zip`, then run `PIRB\PIRB.exe`. Keep `_internal` beside the executable. Do not run inside an archive viewer. Portable also stores preferences in your Windows user profile.
 
 ## Requirements
 
@@ -30,7 +30,7 @@ Portable alternative: extract the **entire** `PIRB_Studio_0.8.1_Windows_x64_Port
 | Input | Keyboard and mouse; global input drives the animation |
 | Audio | An enabled audio output, only if sounds are wanted |
 | Other | Windows built-in `tar.exe` for Setup, present in standard supported Windows installations |
-| Internet | Needed to download; not needed to use the app |
+| Internet | Needed to download and check updates; companion animation works offline |
 
 32-bit Windows and native Windows ARM64 are not supported. Linux/macOS can render a source demo only. 300 MB is an installation allowance, not a measured RAM requirement.
 
@@ -49,15 +49,25 @@ Right-click PIRB or its tray icon → **Giao diện & âm thanh… / Appearance 
 
 Changes save automatically. Only one instance runs at a time. Startup with Windows is not enabled automatically; optionally copy the Desktop shortcut into the folder opened by **Win + R → `shell:startup`**.
 
+## Updates
+
+From **0.9.0**, PIRB checks public GitHub Releases a few seconds after startup and every **6 hours** while running. Checks are throttled across restarts. If a newer complete Windows release is available, it asks **Update now / Later**, with release notes. Choosing Later leaves the app unchanged; the same version is not prompted again in that session. Manual checks can show it again.
+
+In **Settings → Updates**, turn automatic checks on/off, include/exclude pre-releases, or press **Check for updates now**. Pre-releases are included by default while this project is in its 0.x preview stage. Drafts, incomplete releases, equal/older versions and mismatched asset URLs are ignored. Automatic failures stay quiet; manual failures show a message.
+
+After you choose Update now, the app downloads only this repository's Windows x64 Setup, shows progress/Cancel, verifies the size, SHA256SUMS and GitHub asset digest when present, opens Setup and exits PIRB. Finish the normal Setup confirmation; preferences are retained. Corrupt/incomplete downloads never launch. Checksums verify transfer integrity; the community installer is still unsigned. A cancelled update leaves the current version unchanged.
+
+**Users of 0.8.1 and earlier must manually install 0.9.0 once.** Those old versions cannot acquire the update feature themselves. No GitHub account/token or separate Python installation is needed. The app never installs without the user's update choice.
+
 ## Upgrade, uninstall and troubleshooting
 
 Exit the old app before upgrading. Existing preferences are reused. Old version folders/downloads are preserved, not automatically deleted.
 
-For an installed copy, exit PIRB and use **Windows Settings → Apps → PIRB Studio 0.8.1 → Uninstall**, or run its `Uninstall.exe`. Preferences/custom images remain. For portable, exit and delete its extracted folder; the included uninstaller targets the installed location only.
+For an installed copy, exit PIRB and use **Windows Settings → Apps → PIRB Studio 0.9.0 → Uninstall**, or run its `Uninstall.exe`. Preferences/custom images remain. For portable, exit and delete its extracted folder; the included uninstaller targets the installed location only.
 
 If startup fails, run `_internal\support\DIAGNOSTICS.bat`. Errors may be written to `%LOCALAPPDATA%\PIRBDesktop\startup-error.log`. For sound issues check Windows output/Volume Mixer and the Sound tab. If another app's keys do not animate, test with a normal non-elevated app. Report the exact message, PIRB version and Windows version. The community build is unsigned and Windows may warn about its publisher; the app does not require disabling protection.
 
-Preferences use `QSettings('PIRBCompanion', 'Desktop')`, normally `HKEY_CURRENT_USER\Software\PIRBCompanion\Desktop`. Imported images are copied to Qt's per-user `AppDataLocation` for `PIRBCommunity/PIRBDesktop`. Key states exist transiently in memory for animation; typed text is not recorded, input/images are not sent online, and there is no telemetry.
+Preferences use `QSettings('PIRBCompanion', 'Desktop')`, normally `HKEY_CURRENT_USER\Software\PIRBCompanion\Desktop`. Imported images are copied to Qt's per-user `AppDataLocation` for `PIRBCommunity/PIRBDesktop`. Key states exist transiently in memory for animation; typed text is not recorded, input/images are not sent online, and there is no telemetry. Optional update checks read public GitHub Releases over HTTPS.
 
 ## Develop and build
 

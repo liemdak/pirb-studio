@@ -37,7 +37,7 @@ def verify():
                      '_internal/Lib/site-packages/PySide6/plugins/multimedia/ffmpegmediaplugin.dll',
                      '_internal/support/README.md', '_internal/support/README_VI.md',
                      '_internal/support/docs/settings-en.png', '_internal/support/docs/settings-vi.png',
-                     '_internal/app/i18n.py', '_internal/app/version.py'):
+                     '_internal/app/i18n.py', '_internal/app/version.py', '_internal/app/updater.py'):
             assert 'PIRB/' + name in names, name
         manifest = json.loads(archive.read('PIRB/_internal/BUILD_MANIFEST.json'))
         assert manifest['version'] == VERSION
@@ -52,7 +52,7 @@ def verify():
             assert pe.FILE_HEADER.Machine == 0x8664 and pe.OPTIONAL_HEADER.Subsystem == 2
             assert {i.dll.decode().lower() for i in pe.DIRECTORY_ENTRY_IMPORT} <= expected_imports
             assert any(e.id == 3 for e in pe.DIRECTORY_ENTRY_RESOURCE.entries)
-            assert pe.VS_FIXEDFILEINFO[0].FileVersionMS == 8
+            assert pe.VS_FIXEDFILEINFO[0].FileVersionMS == (int(VERSION.split('.')[0]) << 16) | int(VERSION.split('.')[1])
             assert pe.VS_FIXEDFILEINFO[0].FileVersionLS == int(VERSION.split('.')[2]) << 16
             pe.close()
     for row in (folder / 'SHA256SUMS.txt').read_text().splitlines():

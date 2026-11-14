@@ -6,6 +6,7 @@ from PySide6.QtGui import QImageReader,QPixmap
 
 DEFAULTS={
  'language':'vi',
+ 'check_updates':True,'include_prereleases':True,
  'skin':'fuji_sakura','custom_skin':'','brightness':82,'zoom':100,'pan_x':0,'pan_y':0,
  'scene_width':600,'scene_rotation':0,'dock':'free','effects':'soft','bird_scale':115,'bird_tilt':0,'bird_x':0,'bird_y':0,'expression':'auto','skin_rotation':180,'rgb':'purple','keyboard_sound':True,'mouse_sound':True,'pirb_sound':False,
  'sound_pack':'thock','keyboard_volume':25,'mouse_volume':20,'pirb_volume':25,
@@ -22,7 +23,7 @@ def load_preferences(settings):
     for k,lo,hi in [('scene_width',180,1200),('scene_rotation',-180,180),('brightness',20,100),('zoom',100,220),('pan_x',-100,100),('pan_y',-100,100),('bird_scale',100,120),('bird_tilt',-18,18),('bird_x',-100,100),('bird_y',-30,30),('keyboard_volume',0,100),('mouse_volume',0,100),('pirb_volume',0,100)]:
         try:result[k]=max(lo,min(hi,int(result[k])))
         except (TypeError,ValueError):result[k]=DEFAULTS[k]
-    for k in ('keyboard_sound','mouse_sound','pirb_sound'):result[k]=result[k] if isinstance(result[k],bool) else DEFAULTS[k]
+    for k in ('keyboard_sound','mouse_sound','pirb_sound','check_updates','include_prereleases'):result[k]=result[k] if isinstance(result[k],bool) else DEFAULTS[k]
     if result['language'] not in ('vi','en'):result['language']='vi'
     if result['dock'] not in ('free','bottom_right','bottom_left','top_right','top_left'):result['dock']='free'
     if result['effects'] not in ('off','soft','vivid'):result['effects']='soft'

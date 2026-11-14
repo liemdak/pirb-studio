@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.0 — 2026-11-14
+
+- Public GitHub repository and anonymous release checks; no GitHub login/token in the app.
+- Checks after startup and every 6 hours, with a manual check button and an option to include pre-releases.
+- Asks before downloading/installing; Later leaves the app unchanged. Shows release notes, download progress and Cancel.
+- Verifies release asset URLs, file size, SHA256SUMS and GitHub digest before launching Setup, then quits PIRB to allow the upgrade.
+- Added English/Vietnamese Updates settings and explicit bundled-Python installation guidance.
+- Added release-selection, consent, tampering, cancellation and asynchronous HTTP tests.
+
 ## 0.8.1 — 2026-11-14
 
 - Stack Settings labels above fields on narrow windows to accommodate Windows font metrics.

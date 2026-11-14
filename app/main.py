@@ -1,4 +1,4 @@
-"""PIRB Studio: local transient input; no recording or networking."""
+"""PIRB Studio: local transient input and optional public release checks."""
 import sys, math, time, ctypes, random, json
 from collections import OrderedDict
 from pathlib import Path
@@ -16,6 +16,7 @@ from view import view_geometry,corner_position
 from effects import Effects
 from i18n import translate
 from version import VERSION
+from updater import UpdateController
 CANVAS_H=720
 ROOT = Path(getattr(sys, '_MEIPASS', Path(__file__).parent))
 
@@ -60,6 +61,8 @@ class Companion(QWidget):
         self.tray=QSystemTrayIcon(QIcon(self.head),self); self.tray.setToolTip('PIRB Studio '+VERSION); self.tray.setContextMenu(self.menu()); self.tray.show()
         self.update_view_layout()
         self.timer=QTimer(self); self.timer.timeout.connect(self.tick); self.timer.start(16)
+        self.updater=UpdateController(self)
+        if not demo:self.updater.start()
     def menu(self):
         tr=lambda text:translate(text,self.prefs.get('language','vi'))
         m=QMenu()
@@ -299,6 +302,7 @@ class Companion(QWidget):
     def mouseReleaseEvent(self,e):
         self.drag=None;self._scene_center=QPointF(self.x()+self.width()/2,self.y()+self.height()/2);self.settings.setValue('preferences',json.dumps(self.prefs,ensure_ascii=False))
     def save(self):
+        self.updater.close()
         if self.settings_dialog:self.settings_dialog.close()
         self.audio.close()
         if self.keyboard: self.keyboard.close()

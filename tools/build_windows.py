@@ -84,7 +84,7 @@ def assemble_runtime(downloads, stage, internal):
                 shutil.copy2(path, dest)
     for path in wheels.glob('*.dist-info'):
         shutil.copytree(path, site / path.name)
-    seeds = [wheels / 'PySide6' / (m + '.pyd') for m in ('QtCore', 'QtGui', 'QtWidgets', 'QtMultimedia')]
+    seeds = [wheels / 'PySide6' / (m + '.pyd') for m in ('QtCore', 'QtGui', 'QtWidgets', 'QtMultimedia', 'QtNetwork')]
     seeds += list((wheels / 'shiboken6').glob('*.pyd'))
     for category in ('platforms', 'imageformats', 'iconengines', 'styles', 'multimedia', 'networkinformation', 'tls'):
         seeds += [p for p in (wheels / 'PySide6/plugins' / category).glob('*.dll') if p.name.lower() != 'qpdf.dll']
