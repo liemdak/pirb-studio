@@ -1,0 +1,26 @@
+1 ICON "pirb.ico"
+1 VERSIONINFO
+FILEVERSION 0,8,0,0
+PRODUCTVERSION 0,8,0,0
+FILEFLAGSMASK 0x3fL
+FILEOS 0x00040004
+FILETYPE 0x00000001
+BEGIN
+ BLOCK "StringFileInfo"
+ BEGIN
+  BLOCK "040904B0"
+  BEGIN
+   VALUE "CompanyName", "PIRB Desktop Community\0"
+   VALUE "FileDescription", "PIRB Studio Uninstaller\0"
+   VALUE "FileVersion", "0.8.0\0"
+   VALUE "InternalName", "PIRB\0"
+   VALUE "OriginalFilename", "Uninstall.exe\0"
+   VALUE "ProductName", "PIRB Studio\0"
+   VALUE "ProductVersion", "0.8.0\0"
+  END
+ END
+ BLOCK "VarFileInfo"
+ BEGIN
+  VALUE "Translation", 0x409, 1200
+ END
+END

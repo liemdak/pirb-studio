@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+.cache/
+.build/
+dist/
+*.exe
+*.res
+*.zip
+*.ini
+app/preview.png
+settings_patch/
+DANH_GIA.md
+PIRB_Studio_preview.gif

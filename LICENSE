@@ -1,0 +1,13 @@
+PIRB Studio — application code and artwork
+
+No open-source license has been selected for the original application code.
+Publication of this repository does not itself grant an open-source license.
+Rights in original material remain with their respective rights holders.
+
+Third-party components retain their own licenses. CC0 assets are identified in
+app/ASSET_CREDITS.md. CPython, Qt/PySide6, shiboken6, FFmpeg and Microsoft runtime
+notices are supplied with the binary distribution; see THIRD_PARTY_NOTICES.md.
+
+The PIRB head is AI-generated artwork based on the project reference.
+Pyth/PIRB names and logos are not claimed as project-owned trademarks.
+This community project is not an official Pyth product.
