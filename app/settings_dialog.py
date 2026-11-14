@@ -162,6 +162,15 @@ class SettingsDialog(QDialog):
         self.preview_timer=QTimer(self);self.preview_timer.timeout.connect(lambda:self.update_preview() if self.isVisible() else None);self.preview_timer.start(150)
     def text(self,source):
         return translate(source,self.owner.prefs.get('language','vi'))
+    def resizeEvent(self,event):
+        super().resizeEvent(event)
+        # Windows fonts need more room than the Linux offscreen font metrics.
+        # Stack labels over fields on narrow windows instead of clipping rows.
+        policy=(QFormLayout.RowWrapPolicy.WrapAllRows if self.width()<720
+                else QFormLayout.RowWrapPolicy.WrapLongRows)
+        for area in self.findChildren(QScrollArea):
+            page=area.widget()
+            if page is not None and isinstance(page.layout(),QFormLayout):page.layout().setRowWrapPolicy(policy)
     def retranslate_ui(self):
         """Update text in place so sliders, scroll positions and item data survive."""
         self.setWindowTitle(self.text('PIRB Studio · Tùy chỉnh')+' · '+VERSION)
