@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt,QSize,QTimer,QPointF,QRectF
 import time
 from pathlib import Path
 from PySide6.QtGui import QIcon,QPixmap,QPainter,QColor,QPen,QLinearGradient,QPainterPath
-from PySide6.QtWidgets import (QDialog,QVBoxLayout,QHBoxLayout,QFormLayout,QTabWidget,QWidget,QLabel,QComboBox,QPushButton,QSlider,QCheckBox,QFileDialog,QMessageBox,QScrollArea,QFrame)
+from PySide6.QtWidgets import (QDialog,QVBoxLayout,QHBoxLayout,QBoxLayout,QFormLayout,QTabWidget,QWidget,QLabel,QComboBox,QPushButton,QSlider,QCheckBox,QFileDialog,QMessageBox,QScrollArea,QFrame)
 from preferences import SKINS,PACKS,import_skin
 from i18n import translate
 from version import VERSION
@@ -149,7 +149,7 @@ class SettingsDialog(QDialog):
         for title,filename in SOUND_SLOTS:self.sound_slot.addItem(title,filename)
         sf.addRow('Loại phím / chuột',self.sound_slot)
         self.sound_status=QLabel();self.sound_status.setWordWrap(True);self.sound_status.setProperty('dynamic_text',True);sf.addRow(self.sound_status)
-        custom_buttons=QWidget();custom_row=QHBoxLayout(custom_buttons);custom_row.setContentsMargins(0,0,0,0)
+        custom_buttons=QWidget();custom_row=QHBoxLayout(custom_buttons);self.custom_sound_buttons=custom_row;custom_row.setContentsMargins(0,0,0,0)
         for title,callback in [('Chọn WAV…',self.choose_sound),('Nghe âm đã chọn',lambda:owner.audio.preview_slot(self.sound_slot.currentData())),('Bỏ âm riêng',self.clear_sound)]:
             button=QPushButton(title);button.clicked.connect(callback);custom_row.addWidget(button)
         sf.addRow(custom_buttons)
@@ -160,7 +160,7 @@ class SettingsDialog(QDialog):
         self.slider(sf,'Âm lượng phím','keyboard_volume',0,100,'%')
         self.slider(sf,'Âm lượng chuột','mouse_volume',0,100,'%')
         self.slider(sf,'Âm lượng PIRB','pirb_volume',0,100,'%')
-        buttons=QWidget();row=QHBoxLayout(buttons);row.setContentsMargins(0,0,0,0)
+        buttons=QWidget();row=QHBoxLayout(buttons);self.sound_preview_buttons=row;row.setContentsMargins(0,0,0,0)
         for title,fn in [('Nghe thử phím',owner.audio.preview),('Click thử',lambda:owner.audio.mouse(True)),('Nghe PIRB',lambda:owner.audio.bird(True))]:
             button=QPushButton(title);button.clicked.connect(fn);row.addWidget(button)
         sf.addRow('',buttons)
@@ -191,6 +191,9 @@ class SettingsDialog(QDialog):
         # Stack labels over fields on narrow windows instead of clipping rows.
         policy=(QFormLayout.RowWrapPolicy.WrapAllRows if self.width()<720
                 else QFormLayout.RowWrapPolicy.WrapLongRows)
+        for name in ('custom_sound_buttons','sound_preview_buttons'):
+            row=getattr(self,name,None)
+            if row is not None:row.setDirection(QBoxLayout.Direction.TopToBottom if self.width()<720 else QBoxLayout.Direction.LeftToRight)
         for area in self.findChildren(QScrollArea):
             page=area.widget()
             if page is not None and isinstance(page.layout(),QFormLayout):page.layout().setRowWrapPolicy(policy)
