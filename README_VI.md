@@ -1,6 +1,18 @@
-# PIRB Studio 0.9.1
+# Pirb Desk 0.10.0
 
 [English](README.md) · Chim bồ câu phản hồi bàn phím và chuột trên Windows.
+
+**Tên mới của PIRB Studio.** Giữ nguyên repo và vùng lưu dữ liệu để không mất ngôn ngữ, tư thế, ảnh riêng và âm lượng khi nâng cấp. Đây là app cộng đồng, không phải sản phẩm Pyth chính thức.
+
+![Pirb Desk với mặt bàn Pyth Classic](docs/pirb-desk.png)
+
+### Mới trong 0.10.0
+
+- Mặt bàn và bàn phím dùng chung hệ phối cảnh; cạnh bàn có chiều dày, không còn nghiêng so le.
+- **Pyth Classic** tím là nền mặc định cho hồ sơ mới. Hồ sơ cũ giữ nền đã chọn; vào Giao diện → **Dùng nền Pyth Classic** để chuyển.
+- Âm thanh → chọn loại phím/chuột → **Chọn WAV…** để dùng âm của bạn. Hỗ trợ WAV PCM mono/stereo, tối đa 3 giây và dưới 8 MB; file được chép vào dữ liệu app. Chọn một âm phím thường để dùng chung, rồi ghi đè Space/Enter/Backspace/phím bổ trợ nếu muốn. Chuột chưa gán dùng Thock.
+- Có nghe thử, bỏ từng âm riêng và khôi phục Thock. Âm riêng được giữ khi đổi ngôn ngữ, khởi động lại hoặc nâng cấp. Bản này chưa nhập MP3/OGG trực tiếp.
+- Hiệu ứng Rực rỡ có thêm vòng sáng và tia vàng nhẹ, vẫn dùng Qt; không thêm Three.js/WebEngine.
 
 ## Cần gì để sử dụng?
 
@@ -17,14 +29,14 @@
 
 ## Cài đặt
 
-1. Vào **Releases**, tải **PIRB_Studio_0.9.1_Windows_x64_Setup.exe**. **Code → Download ZIP** chỉ là mã nguồn, không phải bộ cài.
+1. Vào **Releases**, tải **Pirb_Desk_0.10.0_Windows_x64_Setup.exe**. **Code → Download ZIP** chỉ là mã nguồn, không phải bộ cài.
 2. Thoát hẳn PIRB bằng menu biểu tượng cạnh đồng hồ.
 3. Mở Setup, đồng ý cài cho tài khoản hiện tại.
-4. Mở **PIRB Studio** từ Desktop hoặc Start Menu.
+4. Mở **Pirb Desk** từ Desktop hoặc Start Menu.
 
-Không cần quyền quản trị hay tệp cập nhật Settings riêng. Thư mục cài: `%LOCALAPPDATA%\Programs\PIRBStudio\0.9.1\PIRB`.
+Không cần quyền quản trị hay tệp cập nhật Settings riêng. Thư mục cài: `%LOCALAPPDATA%\Programs\PIRBStudio\0.10.0\PirbDesk`.
 
-Bản portable: giải nén **toàn bộ** `PIRB_Studio_0.9.1_Windows_x64_Portable.zip`, mở `PIRB\PIRB.exe`, giữ `_internal` bên cạnh. Không mở trực tiếp trong WinRAR. Portable vẫn lưu tùy chọn vào hồ sơ Windows.
+Bản portable: giải nén **toàn bộ** `Pirb_Desk_0.10.0_Windows_x64_Portable.zip`, mở `PirbDesk\PirbDesk.exe`, giữ `_internal` bên cạnh. Không mở trực tiếp trong WinRAR. Portable vẫn lưu tùy chọn vào hồ sơ Windows.
 
 ## Cách sử dụng
 
@@ -39,23 +51,29 @@ Nhấp phải PIRB hoặc biểu tượng cạnh đồng hồ → **Giao diện 
 
 Mọi thay đổi lưu tự động. Chỉ chạy một phiên PIRB. Không tự khởi động cùng Windows; nếu muốn, chép shortcut Desktop vào thư mục mở bằng **Win + R → `shell:startup`**.
 
+## Đổi tên và nâng cấp từ PIRB Studio
+
+Tải bộ cài **Pirb_Desk_0.10.0_Windows_x64_Setup.exe**, thoát app cũ rồi cài. Shortcut mới tên **Pirb Desk**; Setup chỉ gỡ shortcut PIRB Studio cũ nếu nó trỏ đúng bản cài do app sở hữu. Không xóa các thư mục phiên bản cũ hoặc dữ liệu riêng.
+
+Bản phát hành cũng có **PIRB_Studio_0.10.0_Windows_x64_Setup.exe**: đây là bản sao cùng nội dung/checksum, chỉ để updater 0.9.x nhận được tên tệp quen thuộc. Cả hai cài cùng Pirb Desk, chỉ cần tải một file. Giữ repo `liemdak/pirb-studio`, registry/QSettings/app-data ID cũ là chủ ý tương thích, không phải đổi tên còn sót.
+
 ## Tự nhận biết bản cập nhật
 
-Từ **0.9.1**, app kiểm tra GitHub Releases sau khi mở và mỗi **6 giờ** khi đang chạy, có giới hạn tần suất qua các lần khởi động. Khi có bản mới hoàn chỉnh, app hỏi **Cập nhật ngay / Để sau** và cho xem nội dung thay đổi. Chọn Để sau giữ nguyên ứng dụng; cùng một phiên bản không bị hỏi lại trong phiên chạy đó. Bấm kiểm tra thủ công có thể hiện lại lời mời.
+Từ **PIRB Studio 0.9.1**, app kiểm tra GitHub Releases sau khi mở và mỗi **6 giờ** khi đang chạy, có giới hạn tần suất qua các lần khởi động. Khi có bản mới hoàn chỉnh, app hỏi **Cập nhật ngay / Để sau** và cho xem nội dung thay đổi. Chọn Để sau giữ nguyên ứng dụng; cùng một phiên bản không bị hỏi lại trong phiên chạy đó. Bấm kiểm tra thủ công có thể hiện lại lời mời.
 
 Vào **Settings → Cập nhật** để bật/tắt kiểm tra, chọn nhận bản thử nghiệm hoặc bấm **Kiểm tra cập nhật ngay**. Bản thử nghiệm mặc định được nhận trong giai đoạn 0.x hiện tại. App bỏ qua bản nháp, bản thiếu bộ cài/checksum, bản bằng/cũ hơn và đường dẫn không thuộc repo.
 
 Chỉ khi đồng ý, app mới tải bộ cài x64, hiện tiến trình/nút Hủy, kiểm tra kích thước và SHA256, rồi mở Setup và thoát PIRB. Bạn xác nhận cài như bình thường; tùy chỉnh được giữ lại. Tải lỗi, tệp sai hoặc hủy tải không thay bản đang dùng. Kiểm tra tự động khi mất mạng không bật thông báo lỗi làm phiền.
 
-**Bản 0.8.1 trở về trước cần tải và cài 0.9.1 thủ công một lần.** Từ đó mới có tính năng tự nhận bản mới. Không cần tài khoản/token GitHub, không cần tải Python. Bộ cài đã kèm Python riêng cho PIRB, không phụ thuộc Python trên máy.
+**Bản 0.8.1 trở về trước cần tải và cài Pirb Desk thủ công một lần.** Từ đó mới có tính năng tự nhận bản mới. Không cần tài khoản/token GitHub, không cần tải Python. Bộ cài đã kèm Python riêng cho PIRB, không phụ thuộc Python trên máy.
 
 Ứng dụng chỉ đọc thông tin phát hành công khai từ GitHub; không gửi nội dung gõ hay ảnh riêng khi kiểm tra.
 
 ## Nâng cấp, gỡ và xử lý lỗi
 
-Thoát bản cũ trước khi cài. 0.9.1 đọc lại tùy chọn cũ; ngôn ngữ mặc định là tiếng Việt khi chưa có lựa chọn. Setup không xóa thư mục bản cũ hoặc dọn Downloads.
+Thoát bản cũ trước khi cài. 0.10.0 đọc lại tùy chọn cũ; ngôn ngữ mặc định là tiếng Việt khi chưa có lựa chọn. Setup không xóa thư mục bản cũ hoặc dọn Downloads.
 
-Gỡ bản cài qua **Windows Settings → Apps → PIRB Studio 0.9.1 → Uninstall** hoặc `Uninstall.exe` trong thư mục cài. Tùy chọn và ảnh riêng vẫn giữ lại. Với portable: thoát rồi xóa thư mục giải nén; trình gỡ đi kèm chỉ dành cho đường dẫn của bản cài.
+Gỡ bản cài qua **Windows Settings → Apps → Pirb Desk 0.10.0 → Uninstall** hoặc `Uninstall.exe` trong thư mục cài. Tùy chọn và ảnh riêng vẫn giữ lại. Với portable: thoát rồi xóa thư mục giải nén; trình gỡ đi kèm chỉ dành cho đường dẫn của bản cài.
 
 Không mở được: chạy `_internal\support\DIAGNOSTICS.bat`, kiểm tra `%LOCALAPPDATA%\PIRBDesktop\startup-error.log` nếu có. Không có tiếng: kiểm tra thiết bị phát/Volume Mixer và tab Âm thanh. Không nhận phím từ app khác: thử một app mở bình thường, không nâng quyền. PIRB báo đã chạy: tìm biểu tượng ở khay hệ thống, có thể trong mũi tên cạnh đồng hồ.
 

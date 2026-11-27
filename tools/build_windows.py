@@ -19,7 +19,7 @@ import ziglang
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'app'))
-from version import VERSION
+from version import VERSION,APP_NAME,ARTIFACT_PREFIX,LEGACY_ARTIFACT_PREFIX,BUNDLE_FOLDER,EXECUTABLE
 
 
 def digest(path):
@@ -138,7 +138,7 @@ def main():
     stage = ROOT / '.build'
     if stage.exists():
         shutil.rmtree(stage)
-    internal = stage / 'PIRB/_internal'
+    internal = stage / BUNDLE_FOLDER / '_internal'
     internal.mkdir(parents=True)
     manifest = assemble_runtime(downloads, stage, internal)
     app = internal / 'app'
@@ -152,8 +152,8 @@ def main():
         shutil.copytree(ROOT / name, support / name, ignore=shutil.ignore_patterns('*.exe', '*.res', '*.pyc', '__pycache__'))
     (support / 'DIAGNOSTICS.bat').write_text('@echo off\r\ncd /d "%~dp0.."\r\n"%~dp0..\\python.exe" "%~dp0..\\app\\launch.py"\r\npause\r\n', encoding='ascii')
     top = internal.parent
-    (top / 'START_HERE.txt').write_text('PIRB Studio ' + VERSION + '\n\nOpen PIRB.exe. Keep _internal beside it.\nRight-click PIRB > Appearance & sound. Language: English / Tieng Viet.\n\nMo PIRB.exe. Giu nguyen thu muc _internal.\nHuong dan: _internal/support/README_VI.md\n', encoding='utf-8')
-    compile_native(ROOT / 'build', 'launcher.c', top / 'PIRB.exe', 'pirb_start', 'launcher.res')
+    (top / 'START_HERE.txt').write_text(APP_NAME + ' ' + VERSION + '\n\nOpen PirbDesk.exe. Keep _internal beside it.\nRight-click PIRB > Appearance & sound. Language: English / Tieng Viet.\n\nMo PirbDesk.exe. Giu nguyen thu muc _internal.\nHuong dan: _internal/support/README_VI.md\n', encoding='utf-8')
+    compile_native(ROOT / 'build', 'launcher.c', top / EXECUTABLE, 'pirb_start', 'launcher.res')
     extra = ('-lshell32', '-lole32', '-ladvapi32')
     compile_native(ROOT / 'installer', 'uninstall.c', top / 'Uninstall.exe', 'pirb_uninstall_start', 'uninstall.res', extra)
     compile_native(ROOT / 'installer', 'setup.c', stage / 'setup_stub.exe', 'pirb_setup_start', 'setup.res', extra)
@@ -163,16 +163,18 @@ def main():
     (internal / 'BUILD_MANIFEST.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     dist = ROOT / 'dist'
     dist.mkdir(exist_ok=True)
-    portable = dist / ('PIRB_Studio_' + VERSION + '_Windows_x64_Portable.zip')
+    portable = dist / (ARTIFACT_PREFIX + '_' + VERSION + '_Windows_x64_Portable.zip')
     with zipfile.ZipFile(portable, 'w', zipfile.ZIP_DEFLATED, compresslevel=7) as archive:
         for path in sorted(top.rglob('*')):
             if path.is_file():
                 archive.write(path, path.relative_to(stage))
     payload = portable.read_bytes()
-    setup = dist / ('PIRB_Studio_' + VERSION + '_Windows_x64_Setup.exe')
+    setup = dist / (ARTIFACT_PREFIX + '_' + VERSION + '_Windows_x64_Setup.exe')
     setup.write_bytes((stage / 'setup_stub.exe').read_bytes() + payload + struct.pack('<8sQ', b'PIRBZIP1', len(payload)))
+    legacy = dist / (LEGACY_ARTIFACT_PREFIX + '_' + VERSION + '_Windows_x64_Setup.exe')
+    shutil.copy2(setup, legacy)
     hashes = dist / 'SHA256SUMS.txt'
-    hashes.write_text(''.join(digest(p) + '  ' + p.name + '\n' for p in (setup, portable)), encoding='ascii')
+    hashes.write_text(''.join(digest(p) + '  ' + p.name + '\n' for p in (setup, portable, legacy)), encoding='ascii')
     print('Built', setup, '\nBuilt', portable)
 
 

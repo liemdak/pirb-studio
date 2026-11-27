@@ -3,16 +3,17 @@ import json,shutil
 from pathlib import Path
 from PySide6.QtCore import QStandardPaths,QSize,Qt
 from PySide6.QtGui import QImageReader,QPixmap
+from custom_audio import SLOT_FILES
 
 DEFAULTS={
  'language':'vi',
  'check_updates':True,'include_prereleases':True,
- 'skin':'fuji_sakura','custom_skin':'','brightness':82,'zoom':100,'pan_x':0,'pan_y':0,
+ 'skin':'pyth_classic','custom_skin':'','brightness':90,'zoom':100,'pan_x':0,'pan_y':0,
  'scene_width':600,'scene_rotation':0,'dock':'free','effects':'soft','bird_scale':115,'bird_tilt':0,'bird_x':0,'bird_y':0,'expression':'auto','skin_rotation':180,'rgb':'purple','keyboard_sound':True,'mouse_sound':True,'pirb_sound':False,
- 'sound_pack':'thock','keyboard_volume':25,'mouse_volume':20,'pirb_volume':25,
+ 'sound_pack':'thock','custom_sounds':{},'keyboard_volume':25,'mouse_volume':20,'pirb_volume':25,
 }
-SKINS=[('Núi Phú Sĩ & hoa anh đào','fuji_sakura'),('Khu vườn đền Nhật','temple_garden'),('Thung lũng hoàng hôn','valley_sunset'),('Mặt bàn trơn','none')]
-PACKS=[('Thock · trầm, đầm','thock'),('Clicky · tách rõ','clicky'),('Tactile · gọn, nhẹ','tactile')]
+SKINS=[('Pyth Classic · tím thanh lịch','pyth_classic'),('Núi Phú Sĩ & hoa anh đào','fuji_sakura'),('Khu vườn đền Nhật','temple_garden'),('Thung lũng hoàng hôn','valley_sunset'),('Mặt bàn trơn','none')]
+PACKS=[('Thock · trầm, đầm','thock'),('Clicky · tách rõ','clicky'),('Tactile · gọn, nhẹ','tactile'),('Âm thanh của bạn','custom')]
 
 def load_preferences(settings):
     result=dict(DEFAULTS)
@@ -30,7 +31,10 @@ def load_preferences(settings):
     if result['skin_rotation'] not in (0,90,180,270):result['skin_rotation']=180
     if result['expression'] not in ('auto','calm','happy','focused','sleepy','wink'):result['expression']='auto'
     if result['rgb'] not in ('off','purple','rainbow'):result['rgb']='purple'
-    if result['sound_pack'] not in ('thock','clicky','tactile'):result['sound_pack']='thock'
+    if result['sound_pack'] not in ('thock','clicky','tactile','custom'):result['sound_pack']='thock'
+    sounds=result['custom_sounds']
+    result['custom_sounds']={key:value for key,value in sounds.items() if key in SLOT_FILES and isinstance(value,str) and len(value)<32768} if isinstance(sounds,dict) else {}
+    if result['skin'] not in {key for _,key in SKINS}|{'custom'}:result['skin']=DEFAULTS['skin']
     return result
 
 def load_image(path):

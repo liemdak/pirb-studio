@@ -16,7 +16,7 @@ from PySide6.QtGui import QDesktopServices
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PySide6.QtWidgets import QApplication, QMessageBox, QProgressDialog, QWidget
 from i18n import translate
-from version import VERSION
+from version import VERSION,ARTIFACT_PREFIX,LEGACY_ARTIFACT_PREFIX
 
 REPOSITORY = 'liemdak/pirb-studio'
 API_URL = 'https://api.github.com/repos/' + REPOSITORY + '/releases?per_page=30'
@@ -68,13 +68,20 @@ def newest_release(rows, current=VERSION, include_prereleases=True):
         if key <= version_key(current) or (not include_prereleases and key[3] == 0):
             continue
         version = tag.removeprefix('v')
-        filename = f'PIRB_Studio_{version}_Windows_x64_Setup.exe'
         assets = {a.get('name'): a for a in row.get('assets', []) if isinstance(a, dict) and a.get('state') == 'uploaded'}
-        installer, checksum = assets.get(filename, {}), assets.get('SHA256SUMS.txt', {})
-        size = installer.get('size', 0)
-        if not isinstance(size, int) or isinstance(size, bool) or not 0 < size <= MAX_INSTALLER_SIZE:
-            continue
-        if not asset_url(installer.get('browser_download_url'), tag, filename) or not asset_url(checksum.get('browser_download_url'), tag, 'SHA256SUMS.txt'):
+        # Keep accepting the original name; 0.9.x clients receive a matching alias.
+        installer = checksum = None
+        for prefix in (ARTIFACT_PREFIX, LEGACY_ARTIFACT_PREFIX):
+            filename = f'{prefix}_{version}_Windows_x64_Setup.exe'
+            candidate, sums = assets.get(filename, {}), assets.get('SHA256SUMS.txt', {})
+            size = candidate.get('size', 0)
+            if not isinstance(size, int) or isinstance(size, bool) or not 0 < size <= MAX_INSTALLER_SIZE:
+                continue
+            if not asset_url(candidate.get('browser_download_url'), tag, filename) or not asset_url(sums.get('browser_download_url'), tag, 'SHA256SUMS.txt'):
+                continue
+            installer, checksum = candidate, sums
+            break
+        if installer is None:
             continue
         page = RELEASE_ROOT + 'tag/' + quote(tag, safe='')
         if row.get('html_url') != page:
@@ -155,7 +162,7 @@ class UpdateController(QObject):
 
     def _get(self, url, limit, success, failure, destination=None):
         request = QNetworkRequest(QUrl(url))
-        request.setRawHeader(b'User-Agent', ('PIRB-Studio/' + VERSION).encode())
+        request.setRawHeader(b'User-Agent', ('Pirb-Desk/' + VERSION).encode())
         request.setRawHeader(b'Accept', b'application/vnd.github+json' if url.startswith('https://api.github.com/') else b'application/octet-stream')
         request.setTransferTimeout(20000)
         request.setAttribute(QNetworkRequest.Attribute.RedirectPolicyAttribute,
@@ -238,7 +245,7 @@ class UpdateController(QObject):
         if manual: self._notice(self.status)
 
     def _notice(self, source):
-        box = QMessageBox(QMessageBox.Icon.Information, 'PIRB Studio', self.tr(source))
+        box = QMessageBox(QMessageBox.Icon.Information, 'Pirb Desk', self.tr(source))
         box.setTextFormat(Qt.TextFormat.PlainText)
         box.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
         self._dialogs.append(box)
@@ -275,7 +282,7 @@ class UpdateController(QObject):
                                          self.owner if isinstance(self.owner, QWidget) else None)
         self._progress.setValue(0)
         self._progress.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-        self._progress.setWindowTitle('PIRB Studio'); self._progress.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
+        self._progress.setWindowTitle('Pirb Desk'); self._progress.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
         self._progress.setAutoClose(False); self._progress.canceled.connect(self.cancel)
         self._progress.show(); self.set_status('Đang tải bản cập nhật…')
 

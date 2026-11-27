@@ -47,7 +47,7 @@ jobs:
       - run: python tools/smoke_windows.py
       - uses: actions/upload-artifact@v4
         with:
-          name: PIRB-Studio-Windows-x64
+          name: Pirb-Desk-Windows-x64
           path: dist/*
       - name: Publish tagged release
         if: startsWith(github.ref, 'refs/tags/')
@@ -55,10 +55,24 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY *> $null
+          $repo = $env:GITHUB_REPOSITORY
+          $tag = $env:GITHUB_REF_NAME
+          $current = gh release view $tag --repo $repo --json isDraft,assets 2>$null
           if ($LASTEXITCODE -eq 0) {
-            gh release upload $env:GITHUB_REF_NAME dist/* --repo $env:GITHUB_REPOSITORY --clobber
+            $release = $current | ConvertFrom-Json
+            if (-not $release.isDraft -and $release.assets.Count -gt 0) {
+              foreach ($file in Get-ChildItem dist -File) {
+                if ($release.assets.name -notcontains $file.Name) { throw "Published release is incomplete: $($file.Name)" }
+              }
+              Write-Host "Preserving the already published release assets."
+              exit 0
+            }
+            gh release edit $tag --repo $repo --draft
           } else {
-            gh release create $env:GITHUB_REF_NAME dist/* --repo $env:GITHUB_REPOSITORY --verify-tag --title "PIRB Studio $env:GITHUB_REF_NAME" --notes-file CHANGELOG.md
+            gh release create $tag --repo $repo --verify-tag --draft --title "Pirb Desk $tag" --notes-file CHANGELOG.md
           }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          gh release upload $tag dist/* --repo $repo --clobber
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          gh release edit $tag --repo $repo --draft=false --prerelease --title "Pirb Desk $tag" --notes-file CHANGELOG.md
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

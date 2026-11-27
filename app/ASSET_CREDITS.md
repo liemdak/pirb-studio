@@ -44,3 +44,8 @@ CC0 text and summary: https://creativecommons.org/publicdomain/zero/1.0/
 The beak animation, facial expression overlays and adjustable character pose are application-drawn geometry added in v0.6.
 
 Version 0.7 uses a higher-resolution crop from the same original PIRB illustration. The refined eyes, beak, chest lighting, interaction particles and scene transforms are runtime drawing code.
+
+
+## Pirb Desk 0.10.0
+
+Pyth Classic is procedural application-drawn community decoration: a purple gradient, abstract curves, Greek-key border and small PYTH text. It does not embed a new third-party logo or downloaded image. The character artwork and previous backgrounds retain the credits above. Custom WAV imports belong to the user and stay in local app data; they are not uploaded or bundled into releases.

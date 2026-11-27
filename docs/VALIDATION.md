@@ -1,4 +1,4 @@
-# Validation status — 0.9.1
+# Validation status — 0.10.0
 
 Local builds use Linux and official Windows x64 runtime inputs. Tests cover language changes without preference resets, persistence, dynamic image entries, menus, layout bounds, transform/contact regression and preference migration. UI images are rendered offscreen.
 
@@ -9,3 +9,6 @@ Packaging checks cover pinned input hashes, x64 GUI PE headers/imports, embedded
 The GitHub workflow adds Windows portable startup/snapshot testing once it actually runs. A committed workflow is not a completed CI run. Follow RELEASING.md for manual Windows installation/uninstallation checks.
 
 Update tests cover semantic version ordering, release channels/assets/URLs, no download before consent, checksum/tamper refusal, cancellation, offline/manual behavior and asynchronous HTTP success/error/size bounds with a loopback fixture. Network checks are disabled in --demo/--snapshot. Full interactive Windows upgrade remains a manual validation step.
+
+
+0.10.0 adds 22 local regression tests in total: shared tabletop/keyboard and texture axes, surface bounds and old backgrounds, bounded WAV validation/copy/source-removal, per-category fallback, old preference retention, custom sound UI/VI-EN/reset and renamed/legacy release selection. Updated offscreen UI and scene captures are in this directory. These checks do not establish real Windows audio, interactive install/uninstall or full update success; report actual CI results separately.

@@ -13,7 +13,7 @@ void pirb_start(void) {
  if(!n)ExitProcess(1);root[n]=0;
  lstrcpyW(runtime,root);lstrcatW(runtime,L"\\_internal\\pirb-runtime.exe");
  lstrcpyW(entry,root);lstrcatW(entry,L"\\_internal\\app\\launch.py");
- if(GetFileAttributesW(runtime)==INVALID_FILE_ATTRIBUTES||GetFileAttributesW(entry)==INVALID_FILE_ATTRIBUTES){MessageBoxW(NULL,L"Hãy giải nén TOÀN BỘ gói PIRB, giữ nguyên thư mục _internal cạnh PIRB.exe.",L"PIRB · Chưa đủ tệp",MB_OK|MB_ICONINFORMATION);ExitProcess(1);}
+ if(GetFileAttributesW(runtime)==INVALID_FILE_ATTRIBUTES||GetFileAttributesW(entry)==INVALID_FILE_ATTRIBUTES){MessageBoxW(NULL,L"Hãy giải nén TOÀN BỘ gói PIRB, giữ nguyên thư mục _internal cạnh PirbDesk.exe.",L"PIRB · Chưa đủ tệp",MB_OK|MB_ICONINFORMATION);ExitProcess(1);}
  wchar_t *args=GetCommandLineW();
  if(*args==L'"'){args++;while(*args&&*args!=L'"')args++;if(*args)args++;}
  else while(*args&&*args>L' ')args++;

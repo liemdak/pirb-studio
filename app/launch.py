@@ -21,7 +21,7 @@ def main():
         except OSError:message+='\n'+details[-900:]
         if sys.platform=='win32':
             import ctypes
-            ctypes.windll.user32.MessageBoxW(None,message,'PIRB Studio',0x10)
+            ctypes.windll.user32.MessageBoxW(None,message,'Pirb Desk',0x10)
         else:print(details,file=sys.stderr)
         raise SystemExit(1)
 if __name__=='__main__':main()

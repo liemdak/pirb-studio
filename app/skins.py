@@ -1,12 +1,39 @@
-"""Cached desk image projected to the existing tabletop, with crop controls."""
+"""Cached tabletop skins on the same plane as the keyboard."""
 from PySide6.QtCore import Qt,QPointF,QRectF
-from PySide6.QtGui import QPixmap,QPainter,QPolygonF,QColor,QTransform,QPainterPath,QLinearGradient,QPen
+from PySide6.QtGui import QPixmap,QPainter,QPolygonF,QColor,QTransform,QPainterPath,QLinearGradient,QPen,QRadialGradient,QFont
 from preferences import load_image
+from desk_geometry import tabletop_corners,texture_projection,DESK_DEPTH
 
-EDGE=[QPointF(0,294),QPointF(1000,454),QPointF(1000,650),QPointF(0,490)]
+EDGE=tabletop_corners()
+_CLASSIC=None
+
+def classic_surface():
+    global _CLASSIC
+    if _CLASSIC is not None:return _CLASSIC
+    image=QPixmap(2000,1200);image.fill(Qt.GlobalColor.transparent)
+    p=QPainter(image);p.scale(2,2);p.setRenderHint(QPainter.RenderHint.Antialiasing)
+    gradient=QLinearGradient(0,0,1000,600)
+    for stop,color in ((0,'#241b3b'),(.45,'#35234e'),(1,'#171426')):gradient.setColorAt(stop,QColor(color))
+    p.fillRect(QRectF(0,0,1000,600),gradient)
+    glow=QRadialGradient(QPointF(570,230),570);glow.setColorAt(0,QColor(132,81,190,48));glow.setColorAt(1,QColor(132,81,190,0));p.fillRect(QRectF(0,0,1000,600),glow)
+    p.setBrush(Qt.BrushStyle.NoBrush)
+    for i in range(5):
+        curve=QPainterPath(QPointF(330+i*32,600));curve.cubicTo(490+i*32,350,690+i*28,480,1010,80+i*36)
+        p.setPen(QPen(QColor(194,160,238,12+i*2),2));p.drawPath(curve)
+    # A quiet Greek-key border, kept clear of the keys and mouse.
+    p.setPen(QPen(QColor(204,179,118,75),2))
+    for y,sign in ((30,1),(570,-1)):
+        for x in range(30,965,36):
+            motif=QPainterPath(QPointF(x,y));motif.lineTo(x+26,y);motif.lineTo(x+26,y+sign*18);motif.lineTo(x+8,y+sign*18);motif.lineTo(x+8,y+sign*7);motif.lineTo(x+18,y+sign*7);p.drawPath(motif)
+    p.setPen(QPen(QColor(176,143,215,65),1));p.drawRoundedRect(QRectF(15,15,970,570),12,12)
+    # Text is intentional community decoration, not a redrawn official logo.
+    p.setPen(QColor('#d4c3ee'));font=QFont('Segoe UI',30,QFont.Weight.Bold);font.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing,4);p.setFont(font)
+    p.drawText(QPointF(60,507),'PYTH')
+    p.setPen(QColor('#9e87b6'));font.setPixelSize(12);font.setBold(False);font.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing,2);p.setFont(font);p.drawText(QPointF(63,530),'COMMUNITY DESK')
+    p.end();_CLASSIC=image;return image
 
 def skin_path(root,prefs):
-    if prefs['skin']=='none':return None
+    if prefs['skin'] in ('none','pyth_classic'):return None
     if prefs['skin']=='custom':return prefs['custom_skin'] or None
     return root/'assets'/'backgrounds'/(prefs['skin']+'.jpg')
 
@@ -18,23 +45,31 @@ def source_crop(width,height,prefs):
     return QRectF(cx,cy,cropw,croph)
 
 def desk_surface(root,prefs):
-    layer=QPixmap(1000,650);layer.fill(Qt.GlobalColor.transparent)
+    layer=QPixmap(2200,1360);layer.setDevicePixelRatio(2);layer.fill(Qt.GlobalColor.transparent)
     p=QPainter(layer);p.setRenderHint(QPainter.RenderHint.Antialiasing);p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
-    shape=QPainterPath();shape.addPolygon(QPolygonF(EDGE));p.setClipPath(shape)
-    gradient=QLinearGradient(0,294,700,650);gradient.setColorAt(0,QColor('#403448'));gradient.setColorAt(1,QColor('#282333'))
-    p.fillPath(shape,gradient)
+    back_left,back_right,front_right,front_left=EDGE
+    # Front and right fascia share the exact surface corners.
+    for a,b,top,bottom in ((front_left,front_right,'#42334f','#15121f'),(front_right,back_right,'#30283e','#14111d')):
+        face=QPolygonF([a,b,b+QPointF(0,DESK_DEPTH),a+QPointF(0,DESK_DEPTH)])
+        gradient=QLinearGradient(a,a+QPointF(0,DESK_DEPTH));gradient.setColorAt(0,QColor(top));gradient.setColorAt(1,QColor(bottom))
+        p.setBrush(gradient);p.setPen(QPen(QColor('#171320'),1));p.drawPolygon(face)
+    shape=QPainterPath();shape.addPolygon(QPolygonF(EDGE));shape.closeSubpath();p.setClipPath(shape)
+    gradient=QLinearGradient(200,300,850,620);gradient.setColorAt(0,QColor('#403448'));gradient.setColorAt(1,QColor('#282333'));p.fillPath(shape,gradient)
     path=skin_path(root,prefs)
+    image=classic_surface() if prefs['skin']=='pyth_classic' else None
     if path:
-        try:
-            image=load_image(path)
-            image=image.transformed(QTransform().rotate(prefs['skin_rotation']),Qt.TransformationMode.SmoothTransformation)
-            p.save();p.setTransform(QTransform(1,.16,0,196/600,0,294),True)
-            p.drawPixmap(QRectF(0,0,1000,600),image,source_crop(image.width(),image.height(),prefs));p.restore()
-            p.fillPath(shape,QColor(19,13,31,round(255*(1-prefs['brightness']/100))))
+        try:image=load_image(path)
         except (OSError,ValueError):pass
-    p.setClipping(False);p.setPen(QPen(QColor('#96819e'),2));p.drawLine(EDGE[0],EDGE[1])
-    p.setPen(QPen(QColor('#18151f'),7));p.drawLine(EDGE[2],EDGE[3]);p.end()
-    return layer
+    if image is not None:
+        # Procedural default has a fixed readable orientation; photo controls remain independent.
+        angle=0 if prefs['skin']=='pyth_classic' else prefs['skin_rotation']
+        image=image.transformed(QTransform().rotate(angle),Qt.TransformationMode.SmoothTransformation)
+        p.save();p.setTransform(texture_projection(),True)
+        p.drawPixmap(QRectF(0,0,1000,600),image,source_crop(image.width(),image.height(),prefs));p.restore()
+        p.fillPath(shape,QColor(19,13,31,round(255*(1-prefs['brightness']/100))))
+    p.setClipping(False);p.setBrush(Qt.BrushStyle.NoBrush);p.setPen(QPen(QColor('#8c719e'),1.5));p.drawPath(shape)
+    p.setPen(QPen(QColor(205,181,238,110),1.7));p.drawLine(front_left,front_right)
+    p.end();return layer
 
 def draw_rgb(p,board,mode,elapsed):
     if mode=='off':return

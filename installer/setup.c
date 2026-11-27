@@ -11,12 +11,12 @@ static STARTUPINFOW startup;static PROCESS_INFORMATION process;
 static const GUID PIRB_CLSID_ShellLink={0x00021401,0,0,{0xc0,0,0,0,0,0,0,0x46}};
 static const GUID PIRB_IID_IShellLinkW={0x000214f9,0,0,{0xc0,0,0,0,0,0,0,0x46}};
 static const GUID PIRB_IID_IPersistFile={0x0000010b,0,0,{0xc0,0,0,0,0,0,0,0x46}};
-static void fail(const wchar_t *message){MessageBoxW(NULL,message,L"PIRB Studio · Cài đặt",MB_OK|MB_ICONERROR);ExitProcess(1);}
+static void fail(const wchar_t *message){MessageBoxW(NULL,message,L"Pirb Desk · Cài đặt",MB_OK|MB_ICONERROR);ExitProcess(1);}
 static void folder(wchar_t *path){if(!CreateDirectoryW(path,NULL)&&GetLastError()!=ERROR_ALREADY_EXISTS)fail(L"Không tạo được thư mục cài đặt trong tài khoản hiện tại.");}
 static void register_uninstall(void){
  HKEY key;const wchar_t *path=L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\PIRBStudio";
  if(RegCreateKeyExW(HKEY_CURRENT_USER,path,0,NULL,0,KEY_SET_VALUE,NULL,&key,NULL)!=ERROR_SUCCESS)return;
- const wchar_t *name=L"PIRB Studio 0.9.1",*version=L"0.9.1",*publisher=L"PIRB Studio Community";
+ const wchar_t *name=L"Pirb Desk 0.10.0",*version=L"0.10.0",*publisher=L"Pirb Desk Community";
  RegSetValueExW(key,L"DisplayName",0,REG_SZ,(const BYTE*)name,(lstrlenW(name)+1)*2);
  RegSetValueExW(key,L"DisplayVersion",0,REG_SZ,(const BYTE*)version,(lstrlenW(version)+1)*2);
  RegSetValueExW(key,L"Publisher",0,REG_SZ,(const BYTE*)publisher,(lstrlenW(publisher)+1)*2);
@@ -26,19 +26,34 @@ static void register_uninstall(void){
  RegSetValueExW(key,L"UninstallString",0,REG_SZ,(const BYTE*)command,(lstrlenW(command)+1)*2);
  DWORD one=1;RegSetValueExW(key,L"NoModify",0,REG_DWORD,(const BYTE*)&one,4);RegSetValueExW(key,L"NoRepair",0,REG_DWORD,(const BYTE*)&one,4);RegCloseKey(key);
 }
+static void migrate_old_shortcut(int csidl){
+ static wchar_t oldlink[32768],target[32768],prefix[32768];
+ if(FAILED(SHGetFolderPathW(NULL,csidl,NULL,SHGFP_TYPE_CURRENT,oldlink)))return;
+ lstrcatW(oldlink,L"\\PIRB Studio.lnk");lstrcpyW(prefix,base);lstrcatW(prefix,L"\\Programs\\PIRBStudio\\");
+ IShellLinkW *link=NULL;IPersistFile *persist=NULL;
+ if(SUCCEEDED(CoCreateInstance(&PIRB_CLSID_ShellLink,NULL,CLSCTX_INPROC_SERVER,&PIRB_IID_IShellLinkW,(void**)&link))){
+  if(SUCCEEDED(IShellLinkW_QueryInterface(link,&PIRB_IID_IPersistFile,(void**)&persist))){
+   if(SUCCEEDED(IPersistFile_Load(persist,oldlink,STGM_READ))&&SUCCEEDED(IShellLinkW_GetPath(link,target,32768,NULL,SLGP_RAWPATH))){
+    int n=lstrlenW(target),p=lstrlenW(prefix);
+    if(n>p+9&&CompareStringOrdinal(target,p,prefix,p,TRUE)==CSTR_EQUAL&&!lstrcmpiW(target+n-9,L"\\PIRB.exe"))DeleteFileW(oldlink);
+   }
+   IPersistFile_Release(persist);
+  }IShellLinkW_Release(link);
+ }
+}
 static void shortcut(int csidl){
  if(FAILED(SHGetFolderPathW(NULL,csidl,NULL,SHGFP_TYPE_CURRENT,linkfile)))return;
- lstrcatW(linkfile,L"\\PIRB Studio.lnk");IShellLinkW *link=NULL;IPersistFile *persist=NULL;
+ lstrcatW(linkfile,L"\\Pirb Desk.lnk");IShellLinkW *link=NULL;IPersistFile *persist=NULL;
  if(SUCCEEDED(CoCreateInstance(&PIRB_CLSID_ShellLink,NULL,CLSCTX_INPROC_SERVER,&PIRB_IID_IShellLinkW,(void**)&link))){
-  IShellLinkW_SetPath(link,exe);IShellLinkW_SetWorkingDirectory(link,appdir);IShellLinkW_SetIconLocation(link,exe,0);IShellLinkW_SetDescription(link,L"PIRB Studio · Desktop companion");
-  if(SUCCEEDED(IShellLinkW_QueryInterface(link,&PIRB_IID_IPersistFile,(void**)&persist))){IPersistFile_Save(persist,linkfile,TRUE);IPersistFile_Release(persist);}IShellLinkW_Release(link);
+  IShellLinkW_SetPath(link,exe);IShellLinkW_SetWorkingDirectory(link,appdir);IShellLinkW_SetIconLocation(link,exe,0);IShellLinkW_SetDescription(link,L"Pirb Desk · Desktop companion");
+  if(SUCCEEDED(IShellLinkW_QueryInterface(link,&PIRB_IID_IPersistFile,(void**)&persist))){BOOL saved=SUCCEEDED(IPersistFile_Save(persist,linkfile,TRUE));IPersistFile_Release(persist);if(saved)migrate_old_shortcut(csidl);}IShellLinkW_Release(link);
  }
 }
 void pirb_setup_start(void){
- if(MessageBoxW(NULL,L"Cài PIRB Studio 0.9.1 cho tài khoản hiện tại?\n\nWindows 10 (1809+) / 11, 64-bit. Python đã kèm sẵn. Không cần tải hay cài Python riêng.\nWindows 10 (1809+) / 11 x64. Python is bundled; no separate download or installation.\nSẽ tạo biểu tượng Desktop và Start Menu.\nHãy thoát PIRB đang chạy trước khi tiếp tục.",L"PIRB Studio · Cài đặt",MB_YESNO|MB_ICONINFORMATION)!=IDYES)ExitProcess(0);
+ if(MessageBoxW(NULL,L"Cài Pirb Desk 0.10.0 cho tài khoản hiện tại?\n\nWindows 10 (1809+) / 11, 64-bit. Python đã kèm sẵn. Không cần tải hay cài Python riêng.\nWindows 10 (1809+) / 11 x64. Python is bundled; no separate download or installation.\nSẽ tạo biểu tượng Desktop và Start Menu.\nHãy thoát PIRB đang chạy trước khi tiếp tục.",L"Pirb Desk · Cài đặt",MB_YESNO|MB_ICONINFORMATION)!=IDYES)ExitProcess(0);
  DWORD n=GetEnvironmentVariableW(L"LOCALAPPDATA",base,32768);if(!n||n>31000)fail(L"Không tìm thấy thư mục dữ liệu tài khoản.");
- lstrcpyW(destination,base);lstrcatW(destination,L"\\Programs");folder(destination);lstrcatW(destination,L"\\PIRBStudio");folder(destination);lstrcatW(destination,L"\\0.9.1");folder(destination);
- lstrcpyW(appdir,destination);lstrcatW(appdir,L"\\PIRB");lstrcpyW(exe,appdir);lstrcatW(exe,L"\\PIRB.exe");
+ lstrcpyW(destination,base);lstrcatW(destination,L"\\Programs");folder(destination);lstrcatW(destination,L"\\PIRBStudio");folder(destination);lstrcatW(destination,L"\\0.10.0");folder(destination);
+ lstrcpyW(appdir,destination);lstrcatW(appdir,L"\\PirbDesk");lstrcpyW(exe,appdir);lstrcatW(exe,L"\\PirbDesk.exe");
  if(GetFileAttributesW(exe)!=INVALID_FILE_ATTRIBUTES){HANDLE check=CreateFileW(exe,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);if(check==INVALID_HANDLE_VALUE)fail(L"PIRB đang chạy. Hãy thoát bằng Exit ở biểu tượng cạnh đồng hồ rồi mở Setup lại.");CloseHandle(check);}
  GetModuleFileNameW(NULL,self,32768);HANDLE source=CreateFileW(self,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);if(source==INVALID_HANDLE_VALUE)fail(L"Không đọc được file Setup.");
  LARGE_INTEGER length,position;GetFileSizeEx(source,&length);position.QuadPart=length.QuadPart-16;SetFilePointerEx(source,position,NULL,FILE_BEGIN);
@@ -48,7 +63,7 @@ void pirb_setup_start(void){
  GetTempPathW(32768,temp);if(!GetTempFileNameW(temp,L"prb",0,zipfile))fail(L"Không tạo được tệp tạm để cài đặt.");
  HANDLE output=CreateFileW(zipfile,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_TEMPORARY,NULL);if(output==INVALID_HANDLE_VALUE)fail(L"Không ghi được tệp tạm.");
  position.QuadPart=length.QuadPart-16-footer.size;SetFilePointerEx(source,position,NULL,FILE_BEGIN);ULONGLONG remaining=footer.size;
- HWND progress=CreateWindowExW(WS_EX_TOPMOST,L"STATIC",L"Đang cài PIRB Studio… vui lòng chờ.",WS_OVERLAPPED|WS_CAPTION|WS_VISIBLE,200,200,460,90,NULL,NULL,GetModuleHandleW(NULL),NULL);UpdateWindow(progress);
+ HWND progress=CreateWindowExW(WS_EX_TOPMOST,L"STATIC",L"Đang cài Pirb Desk… vui lòng chờ.",WS_OVERLAPPED|WS_CAPTION|WS_VISIBLE,200,200,460,90,NULL,NULL,GetModuleHandleW(NULL),NULL);UpdateWindow(progress);
  while(remaining){DWORD chunk=remaining>sizeof(buffer)?sizeof(buffer):(DWORD)remaining;DWORD written=0;if(!ReadFile(source,buffer,chunk,&got,NULL)||got!=chunk||!WriteFile(output,buffer,chunk,&written,NULL)||written!=chunk)fail(L"Không chép được gói cài đặt. Hãy tải lại Setup.");remaining-=chunk;}
  CloseHandle(source);CloseHandle(output);GetSystemDirectoryW(tar,32768);lstrcatW(tar,L"\\tar.exe");if(GetFileAttributesW(tar)==INVALID_FILE_ATTRIBUTES)fail(L"Phiên bản Windows này thiếu công cụ giải nén tar.exe. Hãy dùng bản portable.");
  if(lstrlenW(tar)+lstrlenW(zipfile)+lstrlenW(destination)+30>=32768)fail(L"Đường dẫn cài đặt quá dài.");
@@ -58,7 +73,7 @@ void pirb_setup_start(void){
  DWORD code=1;GetExitCodeProcess(process.hProcess,&code);CloseHandle(process.hProcess);DeleteFileW(zipfile);DestroyWindow(progress);
  if(code||GetFileAttributesW(exe)==INVALID_FILE_ATTRIBUTES)fail(L"Giải nén ứng dụng chưa thành công. Hãy kiểm tra dung lượng đĩa rồi mở Setup lại.");
  CoInitializeEx(NULL,COINIT_APARTMENTTHREADED);shortcut(CSIDL_DESKTOPDIRECTORY);shortcut(CSIDL_PROGRAMS);CoUninitialize();register_uninstall();
- if(MessageBoxW(NULL,L"Đã cài PIRB Studio.\nBạn có thể mở từ biểu tượng PIRB Studio trên Desktop hoặc Start Menu.\n\nMở PIRB ngay bây giờ?",L"PIRB Studio",MB_YESNO|MB_ICONINFORMATION)==IDYES){
+ if(MessageBoxW(NULL,L"Đã cài Pirb Desk.\nBạn có thể mở từ biểu tượng Pirb Desk trên Desktop hoặc Start Menu.\n\nMở PIRB ngay bây giờ?",L"Pirb Desk",MB_YESNO|MB_ICONINFORMATION)==IDYES){
   lstrcpyW(command,L"\"");lstrcatW(command,exe);lstrcatW(command,L"\"");STARTUPINFOW info;PROCESS_INFORMATION child;for(unsigned int i=0;i<sizeof(info);i++)((unsigned char*)&info)[i]=0;info.cb=sizeof(info);
   if(CreateProcessW(exe,command,NULL,NULL,FALSE,0,NULL,appdir,&info,&child)){CloseHandle(child.hThread);CloseHandle(child.hProcess);}
  }

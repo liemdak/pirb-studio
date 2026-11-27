@@ -1,5 +1,5 @@
 """Short-lived contact lighting and restrained feather-like sparkles."""
-import math,random
+import math
 from PySide6.QtCore import QPointF,QRectF,Qt
 from PySide6.QtGui import QColor,QPen,QRadialGradient,QPainterPath
 
@@ -27,6 +27,13 @@ class Effects:
                 glow=QRadialGradient(center,radius);glow.setColorAt(0,QColor(190,147,255,int(85*alpha*strength)));glow.setColorAt(1,QColor(151,106,245,0))
                 p.setBrush(glow);p.setPen(Qt.PenStyle.NoPen);p.drawEllipse(center,radius,radius*.48)
                 p.setBrush(Qt.BrushStyle.NoBrush);p.setPen(QPen(QColor(223,200,255,int(130*alpha*strength)),1.4));p.drawEllipse(center,radius*.72,radius*.34)
+                if level=='vivid':
+                    p.setPen(QPen(QColor(235,201,133,int(110*alpha)),1.1));p.drawEllipse(center,radius*.96,radius*.45)
+                    for i in range(3):
+                        angle=i*math.tau/3+t*.9
+                        tip=center+QPointF(math.cos(angle)*radius,math.sin(angle)*radius*.48)
+                        tail=tip-QPointF(math.cos(angle)*5*(1-t),math.sin(angle)*3*(1-t))
+                        p.setPen(QPen(QColor(239,216,168,int(170*alpha)),1.5));p.drawLine(tail,tip)
             else:
                 for i in range(2 if level=='soft' else 4):
                     x=point.x()+(i-1)*13*(1+t);y=point.y()-t*(35+i*7)

@@ -1,11 +1,13 @@
 """Live appearance and sound controls for the desktop companion."""
 from PySide6.QtCore import Qt,QSize,QTimer,QPointF,QRectF
 import time
+from pathlib import Path
 from PySide6.QtGui import QIcon,QPixmap,QPainter,QColor,QPen,QLinearGradient,QPainterPath
 from PySide6.QtWidgets import (QDialog,QVBoxLayout,QHBoxLayout,QFormLayout,QTabWidget,QWidget,QLabel,QComboBox,QPushButton,QSlider,QCheckBox,QFileDialog,QMessageBox,QScrollArea,QFrame)
 from preferences import SKINS,PACKS,import_skin
 from i18n import translate
 from version import VERSION
+from custom_audio import SOUND_SLOTS,import_sound
 
 PYTHENIANS_STYLE = '''
 QDialog { background:#f5f0e6; }
@@ -54,7 +56,7 @@ class PytheniansBanner(QFrame):
     def __init__(self,parent=None):
         super().__init__(parent); self.setMinimumHeight(126)
         box=QVBoxLayout(self);box.setContentsMargins(24,14,90,32);box.setSpacing(3)
-        for text,name in [('PIRB STUDIO  /  PYTHENIANS','eyebrow'),('Thánh điện của PIRB','brand'),('Tùy chỉnh không gian của bạn','subtitle')]:
+        for text,name in [('PIRB DESK  /  PYTHENIANS','eyebrow'),('Thánh điện của PIRB','brand'),('Tùy chỉnh không gian của bạn','subtitle')]:
             label=QLabel(text);label.setObjectName(name);box.addWidget(label)
     def paintEvent(self,event):
         p=QPainter(self);p.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -74,7 +76,7 @@ class PytheniansBanner(QFrame):
 class SettingsDialog(QDialog):
     def __init__(self,owner):
         super().__init__(None);self.owner=owner;self.ready=False;self.controls={};self.value_labels={}
-        self.setWindowTitle('PIRB Studio · Tùy chỉnh');self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
+        self.setWindowTitle('Pirb Desk · Tùy chỉnh');self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
         self.resize(740,850);self.setMinimumWidth(660)
         self.setStyleSheet(PYTHENIANS_STYLE)
         layout=QVBoxLayout(self);layout.setContentsMargins(18,18,18,18);layout.setSpacing(13)
@@ -114,6 +116,7 @@ class SettingsDialog(QDialog):
         for title,angle in [('Về phía PIRB · 180°',180),('Về phía người xem · 0°',0),('Xoay 90°',90),('Xoay 270°',270)]:self.rotation.addItem(title,angle)
         self.rotation.setCurrentIndex(max(0,self.rotation.findData(owner.prefs['skin_rotation'])));form.addRow('Hướng ảnh mặt bàn',self.rotation);self.rotation.currentIndexChanged.connect(self.apply)
         choose=QPushButton('Chọn ảnh từ máy…');choose.clicked.connect(self.choose_image);form.addRow('',choose)
+        pyth=QPushButton('Dùng nền Pyth Classic');pyth.clicked.connect(self.use_pyth_skin);form.addRow('',pyth)
         self.slider(form,'Độ sáng ảnh','brightness',20,100,'%')
         self.slider(form,'Phóng ảnh','zoom',100,220,'%')
         self.slider(form,'Dịch ảnh ngang','pan_x',-100,100,'')
@@ -141,6 +144,17 @@ class SettingsDialog(QDialog):
         self.pack=QComboBox()
         for title,key in PACKS:self.pack.addItem(title,key)
         self.pack.setCurrentIndex(max(0,self.pack.findData(owner.prefs['sound_pack'])));sf.addRow('Mẫu tiếng phím',self.pack);self.pack.currentIndexChanged.connect(self.apply)
+        self.section(sf,'Âm thanh của bạn','Nhập WAV PCM tối đa 3 giây, dưới 8 MB. Phím chưa gán dùng âm phím thường; chuột chưa gán dùng Thock.')
+        self.sound_slot=QComboBox()
+        for title,filename in SOUND_SLOTS:self.sound_slot.addItem(title,filename)
+        sf.addRow('Loại phím / chuột',self.sound_slot)
+        self.sound_status=QLabel();self.sound_status.setWordWrap(True);self.sound_status.setProperty('dynamic_text',True);sf.addRow(self.sound_status)
+        custom_buttons=QWidget();custom_row=QHBoxLayout(custom_buttons);custom_row.setContentsMargins(0,0,0,0)
+        for title,callback in [('Chọn WAV…',self.choose_sound),('Nghe âm đã chọn',lambda:owner.audio.preview_slot(self.sound_slot.currentData())),('Bỏ âm riêng',self.clear_sound)]:
+            button=QPushButton(title);button.clicked.connect(callback);custom_row.addWidget(button)
+        sf.addRow(custom_buttons)
+        reset_audio=QPushButton('Khôi phục âm Thock mặc định');reset_audio.clicked.connect(self.reset_sounds);sf.addRow(reset_audio)
+        self.sound_slot.currentIndexChanged.connect(self.refresh_sound_status)
         for label,key in [('Tiếng bàn phím','keyboard_sound'),('Tiếng click chuột','mouse_sound'),('PIRB gù nhẹ khi nghỉ lâu','pirb_sound')]:
             check=QCheckBox(label);check.setChecked(owner.prefs[key]);self.controls[key]=check;sf.addRow('',check);check.toggled.connect(self.apply)
         self.slider(sf,'Âm lượng phím','keyboard_volume',0,100,'%')
@@ -182,7 +196,7 @@ class SettingsDialog(QDialog):
             if page is not None and isinstance(page.layout(),QFormLayout):page.layout().setRowWrapPolicy(policy)
     def retranslate_ui(self):
         """Update text in place so sliders, scroll positions and item data survive."""
-        self.setWindowTitle(self.text('PIRB Studio · Tùy chỉnh')+' · '+VERSION)
+        self.setWindowTitle(self.text('Pirb Desk · Tùy chỉnh')+' · '+VERSION)
         for widget in self.findChildren(QWidget):
             if isinstance(widget,(QLabel,QPushButton,QCheckBox)):
                 if widget is self.preview or widget.objectName()=='value' or widget.property('dynamic_text'):continue
@@ -203,7 +217,7 @@ class SettingsDialog(QDialog):
                 source=widget.property('source_accessible_name')
                 if source is None:source=widget.accessibleName();widget.setProperty('source_accessible_name',source)
                 widget.setAccessibleName(self.text(source))
-        self.refresh_update_status()
+        self.refresh_update_status();self.refresh_sound_status();self.rotation.setEnabled(self.owner.prefs['skin']!='pyth_classic')
     def refresh_update_status(self):
         updater=self.owner.updater
         self.update_status.setText(self.text(updater.status).format(**updater.status_values))
@@ -229,13 +243,43 @@ class SettingsDialog(QDialog):
         prefs['dock']=self.dock.currentData();prefs['effects']=self.effect_level.currentData()
         prefs['skin_rotation']=self.rotation.currentData();prefs['expression']=self.expression_mode.currentData()
         prefs['skin']=self.skin.currentData();prefs['rgb']=self.rgb.currentData();prefs['sound_pack']=self.pack.currentData()
-        self.owner.apply_preferences(prefs);self.update_preview()
+        self.owner.apply_preferences(prefs);self.rotation.setEnabled(prefs['skin']!='pyth_classic');self.refresh_sound_status();self.update_preview()
     def scene_preset(self,width,angle,dock):
         self.ready=False;self.controls['scene_width'].setValue(width);self.controls['scene_rotation'].setValue(angle);self.dock.setCurrentIndex(self.dock.findData(dock));self.ready=True;self.apply()
     def reset_pose(self):
         self.ready=False
         for key,value in [('bird_scale',115),('bird_tilt',0),('bird_x',0),('bird_y',0)]:self.controls[key].setValue(value)
         self.ready=True;self.apply()
+    def use_pyth_skin(self):
+        self.ready=False
+        self.skin.setCurrentIndex(self.skin.findData('pyth_classic'))
+        for key,value in [('brightness',90),('zoom',100),('pan_x',0),('pan_y',0)]:self.controls[key].setValue(value)
+        self.ready=True;self.apply()
+    def refresh_sound_status(self,*args):
+        if not hasattr(self,'sound_status'):return
+        prefs=self.owner.prefs;path=prefs.get('custom_sounds',{}).get(self.sound_slot.currentData(),'')
+        if prefs['sound_pack']!='custom':message=self.text('Đang dùng mẫu âm có sẵn. Chọn WAV để bật âm thanh của bạn.')
+        elif path and Path(path).is_file():message=self.text('Âm riêng: {name}').format(name=Path(path).stem.rsplit('-',1)[0][:48]+'.wav')
+        elif path:message=self.text('Không tìm thấy âm riêng. Đang dùng âm thay thế.')
+        else:message=self.text('Chưa gán âm riêng. Đang dùng âm thay thế.')
+        self.sound_status.setText(message)
+    def choose_sound(self):
+        path,_=QFileDialog.getOpenFileName(self,self.text('Chọn âm bàn phím hoặc chuột'),'',self.text('Âm thanh WAV (*.wav)'))
+        if not path:return
+        try:stored=import_sound(path)
+        except (OSError,ValueError) as error:
+            message=str(error) if isinstance(error,ValueError) else 'Không nhập được âm thanh. Hãy kiểm tra tệp và thử lại.'
+            QMessageBox.warning(self,self.text('Không nhập được âm thanh'),self.text(message));return
+        prefs=dict(self.owner.prefs);sounds=dict(prefs.get('custom_sounds',{}));sounds[self.sound_slot.currentData()]=stored
+        prefs.update(custom_sounds=sounds,sound_pack='custom');self.owner.apply_preferences(prefs)
+        self.pack.blockSignals(True);self.pack.setCurrentIndex(self.pack.findData('custom'));self.pack.blockSignals(False)
+        self.refresh_sound_status()
+    def clear_sound(self):
+        prefs=dict(self.owner.prefs);sounds=dict(prefs.get('custom_sounds',{}));sounds.pop(self.sound_slot.currentData(),None)
+        prefs['custom_sounds']=sounds;self.owner.apply_preferences(prefs);self.refresh_sound_status()
+    def reset_sounds(self):
+        self.owner.apply_preferences(dict(self.owner.prefs,custom_sounds={},sound_pack='thock'))
+        self.pack.blockSignals(True);self.pack.setCurrentIndex(self.pack.findData('thock'));self.pack.blockSignals(False);self.refresh_sound_status()
     def choose_image(self):
         path,_=QFileDialog.getOpenFileName(self,self.text('Chọn ảnh nền mặt bàn'),'',self.text('Ảnh (*.png *.jpg *.jpeg *.webp)'))
         if not path:return

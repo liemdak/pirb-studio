@@ -119,6 +119,21 @@ class SettingsTests(unittest.TestCase):
         check = self.d.controls['mouse_sound']; check.setChecked(not check.isChecked())
         self.assertEqual(self.w.prefs['mouse_sound'], check.isChecked())
 
+    def test_custom_audio_ui_import_clear_reset_and_language(self):
+        self.language('en')
+        path=Path(self.temp.name)/'my switch.wav';path.write_bytes(b'test fixture')
+        self.d.sound_slot.setCurrentIndex(self.d.sound_slot.findData('space_press.wav'))
+        with patch.object(settings_dialog.QFileDialog,'getOpenFileName',return_value=(str(path),'')),patch.object(settings_dialog,'import_sound',return_value=str(path)):
+            self.d.choose_sound()
+        self.assertEqual(self.w.prefs['sound_pack'],'custom')
+        self.assertEqual(self.w.prefs['custom_sounds']['space_press.wav'],str(path))
+        for locale in ('vi','en'):
+            self.language(locale);self.assertEqual(self.d.pack.currentData(),'custom')
+            self.assertEqual(self.w.prefs['custom_sounds']['space_press.wav'],str(path))
+        self.d.clear_sound();self.assertEqual(self.w.prefs['custom_sounds'],{})
+        self.d.reset_sounds();self.assertEqual(self.w.prefs['sound_pack'],'thock')
+        self.d.use_pyth_skin();self.assertEqual(self.w.prefs['skin'],'pyth_classic')
+
     def test_layouts_fit_both_languages(self):
         for language in ('vi', 'en'):
             self.language(language)

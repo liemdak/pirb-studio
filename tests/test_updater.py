@@ -69,6 +69,16 @@ class UpdaterTests(unittest.TestCase):
             else:row['assets'][0]['size']=updater.MAX_INSTALLER_SIZE+1
             self.assertIsNone(updater.newest_release([row],'0.8.2'),change)
 
+    def test_renamed_installer_and_legacy_alias_remain_discoverable(self):
+        row=release_row('0.10.0');legacy=dict(row['assets'][0]);primary=dict(legacy)
+        primary['name']=primary['name'].replace('PIRB_Studio_','Pirb_Desk_')
+        primary['browser_download_url']=primary['browser_download_url'].replace('PIRB_Studio_','Pirb_Desk_')
+        row['assets'].append(primary)
+        selected=updater.newest_release([row],'0.9.1');self.assertEqual(selected.filename,primary['name'])
+        row['assets'].pop();selected=updater.newest_release([row],'0.9.1');self.assertEqual(selected.filename,legacy['name'])
+        # The exact legacy filename is the contract installed 0.9.x clients use.
+        self.assertEqual(legacy['name'],'PIRB_Studio_0.10.0_Windows_x64_Setup.exe')
+
     def test_checksum_missing_duplicate_and_tampered_installer(self):
         data=b'MZ-test-installer';row=release_row(payload=data);release=updater.newest_release([row],'0.1.0')
         digest=hashlib.sha256(data).hexdigest();line=(digest+'  '+release.filename+'\n').encode()

@@ -1,4 +1,15 @@
-# Changelog
+# Pirb Desk changelog
+
+## 0.10.0 — Pirb Desk
+
+- Rename PIRB Studio to Pirb Desk in app, tray, settings, launcher, installer, shortcuts and documentation; preserve data/settings/instance-lock IDs and repository URL.
+- Share the tabletop/texture plane with the keyboard; fix opposing depth axes, add a thin front/right desk fascia and update rotated scene bounds.
+- Add a procedural Pyth Classic purple community desk theme. New profiles default to it; existing choices remain intact, with a one-click theme button.
+- Import/copy short mono/stereo PCM WAV sounds for regular keys, Space, Enter, Backspace, modifiers and mouse. Add previews, individual clear/reset, bounded validation and fallback routing. No direct MP3/OGG import.
+- Refine vivid Qt contact effects with a secondary ring and warm motes. No Three.js or WebEngine dependency.
+- Publish new Pirb_Desk assets and a byte-identical PIRB_Studio Setup alias for 0.9.x update clients; both filenames are integrity checked. Migrate app-owned old shortcuts after new shortcuts are saved.
+- Add geometry, audio import/fallback/persistence/UI and updater name-transition regressions. Interactive Windows installation, real audio and full upgrade remain manual checks.
+
 
 ## 0.9.1 — 2026-11-14
 

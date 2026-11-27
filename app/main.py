@@ -1,4 +1,4 @@
-"""PIRB Studio: local transient input and optional public release checks."""
+"""Pirb Desk: local transient input and optional public release checks."""
 import sys, math, time, ctypes, random, json
 from collections import OrderedDict
 from pathlib import Path
@@ -9,13 +9,14 @@ from keyboard_geometry import KEYS
 from devices import draw_keyboard, draw_mouse
 from rig import draw_rig,chest_path
 from preferences import load_preferences
-from skins import desk_surface,draw_rgb,EDGE
+from skins import desk_surface,draw_rgb
+from desk_geometry import keyboard_projection,desk_outline
 from sound_engine import SoundEngine
 from expressions import Expressions,draw_expression
 from view import view_geometry,corner_position
 from effects import Effects
 from i18n import translate
-from version import VERSION
+from version import VERSION,APP_NAME
 from updater import UpdateController
 CANVAS_H=720
 ROOT = Path(getattr(sys, '_MEIPASS', Path(__file__).parent))
@@ -46,7 +47,7 @@ class Companion(QWidget):
         self.t0=time.monotonic(); self.last_activity=self.t0; self.blink_at=self.t0+2.4
         self.expression=Expressions();self.audio.birdTriggered.connect(lambda:self.expression.coo(time.monotonic()))
         self.eye_close=0.; self.gaze=QPointF(); self.lift=-12.; self.mouse_press=0.
-        self.board=QTransform(-.94,-.16,.43,-.78,865,611)
+        self.board=keyboard_projection()
         self.board_base=None;self.board_idle=None;self._screen_cache=None
         self.target=QPointF(650,467); self.tip=QPointF(self.target); self.tap_at=-100.
         self.mousepos=QPointF(245,420); self.frame_time=self.t0
@@ -55,10 +56,10 @@ class Companion(QWidget):
             self.user32.GetAsyncKeyState.argtypes=[ctypes.c_int]; self.user32.GetAsyncKeyState.restype=ctypes.c_short
         elif not demo: raise RuntimeError('This app runs on Windows. Use --demo on other systems.')
         self.keyboard=None
-        if self.user32:
+        if self.user32 and not demo:
             from windows_input import KeyboardInput
             self.keyboard=KeyboardInput()
-        self.tray=QSystemTrayIcon(QIcon(self.head),self); self.tray.setToolTip('PIRB Studio '+VERSION); self.tray.setContextMenu(self.menu()); self.tray.show()
+        self.tray=QSystemTrayIcon(QIcon(self.head),self); self.tray.setToolTip('Pirb Desk '+VERSION); self.tray.setContextMenu(self.menu()); self.tray.show()
         self.update_view_layout()
         self.timer=QTimer(self); self.timer.timeout.connect(self.tick); self.timer.start(16)
         self.updater=UpdateController(self)
@@ -93,12 +94,12 @@ class Companion(QWidget):
             pose_only=not any(old.get(k)!=prefs.get(k) for k in ('scene_width','scene_rotation','dock'))
             self.update_view_layout(QPointF(600,570) if pose_only else None)
         self.settings.setValue('preferences',json.dumps(self.prefs,ensure_ascii=False))
-        if any(old[k]!=prefs[k] for k in ('sound_pack','keyboard_sound','mouse_sound','pirb_sound','keyboard_volume','mouse_volume','pirb_volume')):self.audio.configure(self.prefs)
+        if any(old[k]!=prefs[k] for k in ('sound_pack','keyboard_sound','mouse_sound','pirb_sound','keyboard_volume','mouse_volume','pirb_volume','custom_sounds')):self.audio.configure(self.prefs)
         self.update()
     def set_view(self,**values):
         prefs=dict(self.prefs);prefs.update(values);self.apply_preferences(prefs)
     def visual_outline(self):
-        points=[point+QPointF(0,70) for point in EDGE];pose=self.character_transform()
+        points=[point+QPointF(0,70) for point in desk_outline()];pose=self.character_transform()
         for rect in (QRectF(365,18,365,303),chest_path().boundingRect()):
             points.extend(pose.map(point)+QPointF(0,70) for point in (rect.topLeft(),rect.topRight(),rect.bottomRight(),rect.bottomLeft()))
         return QPolygonF(points)
@@ -311,7 +312,7 @@ class Companion(QWidget):
         self.tray.hide()
 
 if __name__=='__main__':
-    app=QApplication(sys.argv);app.setOrganizationName("PIRBCommunity");app.setApplicationName("PIRBDesktop");app.setApplicationVersion(VERSION); app.setQuitOnLastWindowClosed(False)
+    app=QApplication(sys.argv);app.setOrganizationName("PIRBCommunity");app.setApplicationName("PIRBDesktop");app.setApplicationVersion(VERSION);app.setApplicationDisplayName(APP_NAME); app.setQuitOnLastWindowClosed(False)
     app.setWindowIcon(QIcon(str(ROOT/'assets/head_hd.png')))
     instance_dir=Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppLocalDataLocation));instance_dir.mkdir(parents=True,exist_ok=True)
     instance_lock=QLockFile(str(instance_dir/'pirb-instance.lock'))
