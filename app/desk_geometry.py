@@ -48,10 +48,10 @@ def desk_body_path():
 
 
 def content_inset(painter):
-    """Keep at least 1.25 physical pixels of matte frame at every zoom/DPI."""
+    """Keep at least 2 physical pixels of matte frame at every zoom/DPI."""
     matrix = painter.worldTransform()
     pixels_per_unit = math.hypot(matrix.m11(), matrix.m12()) * painter.device().devicePixelRatioF()
-    return round(max(3.0, 1.25 / max(.001, pixels_per_unit)), 6)
+    return round(max(3.0, 2.0 / max(.001, pixels_per_unit)), 6)
 
 
 @lru_cache(maxsize=64)

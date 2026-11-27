@@ -6,7 +6,7 @@ Previously **PIRB Studio**. Community desktop companion; not an official Pyth pr
 
 ## 0.10.3 — Clean lower border
 
-Draw the matte outer desk directly at final screen resolution, without a thin bright stroke or a second resampling of its edge. Remove the extra low-contrast texture outline and tiny front Greek ornament that broke into dashes when reduced. Keep texture, RGB and keyboard shadows inside an adaptive inset; add a small front clearance below the keyboard. Key updates now replace pixels in world space using Source composition before projection, preventing raised idle-key remnants. Rebuild caches when monitor DPI changes.
+Draw the matte outer desk directly at final screen resolution, without a thin bright stroke or a second resampling of its edge. Remove the extra low-contrast texture outline and tiny front Greek ornament that broke into dashes when reduced. Keep texture, RGB and keyboard shadows inside an adaptive inset; add a small front clearance below the keyboard. Each new key state is rebuilt from the bare keyboard case before projection and cached, preventing raised idle-key remnants across raster backends. Rebuild caches when monitor DPI changes.
 
 Regression checks cover all four visible pixel boundaries at 100/125/150/200% DPI, key-held states against a full redraw and DPI cache changes. These are render tests, not a claim that every Windows desktop/compositor has been manually tested.
 

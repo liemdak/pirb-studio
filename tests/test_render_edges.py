@@ -10,7 +10,7 @@ from unittest.mock import patch
 os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'app'))
 from PySide6.QtCore import Qt,QSettings,QCoreApplication,QEvent
-from PySide6.QtGui import QImage,QPainter,QPixmap
+from PySide6.QtGui import QImage,QPainter,QPixmap,QColor
 from PySide6.QtWidgets import QApplication
 import main
 from devices import draw_keyboard
@@ -88,6 +88,12 @@ class RenderEdgeTests(unittest.TestCase):
                                 offset=y*stride+x*4
                                 self.assertLessEqual(max(data[offset:offset+3]),80,
                                     f'Bright edge fragment at {(x,y)}, width={width}, angle={angle}, DPI={dpr}, RGB={mode}')
+
+    def test_white_custom_skin_cannot_produce_bright_border_fragments(self):
+        path=self.temp.name+'/white.png'
+        image=QImage(64,64,QImage.Format.Format_RGB32);image.fill(QColor('white'));image.save(path)
+        self.w.apply_preferences(dict(self.w.prefs,skin='custom',custom_skin=path,brightness=100))
+        self.test_all_four_outer_pixel_boundaries_remain_dark_with_rgb_and_pressed_keys()
 
     def test_monitor_dpi_change_rebuilds_the_final_resolution_cache(self):
         self.w.apply_preferences(dict(self.w.prefs,scene_width=320,scene_rotation=-9))

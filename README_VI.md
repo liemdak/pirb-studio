@@ -8,7 +8,7 @@
 
 ### 0.10.3 — Làm sạch viền dưới
 
-Vẽ khung bàn tối trực tiếp ở độ phân giải màn hình, bỏ nét sáng quá mảnh và bước thu nhỏ lại đường biên. Bỏ đường khung phụ và họa tiết quá nhỏ sát mép trước để tránh các đoạn sáng đứt quãng khi thu nhỏ. Giới hạn ảnh nền/RGB/bóng bàn phím vào phía trong; chừa thêm một khoảng nhỏ dưới bàn phím. Khi nhấn phím, thay đúng điểm ảnh cũ trong ảnh gốc trước khi chiếu ra màn hình, tránh sót viền phím trắng/tím. Cache tự dựng lại khi đổi DPI màn hình.
+Vẽ khung bàn tối trực tiếp ở độ phân giải màn hình, bỏ nét sáng quá mảnh và bước thu nhỏ lại đường biên. Bỏ đường khung phụ và họa tiết quá nhỏ sát mép trước để tránh các đoạn sáng đứt quãng khi thu nhỏ. Giới hạn ảnh nền/RGB/bóng bàn phím vào phía trong; chừa thêm một khoảng nhỏ dưới bàn phím. Mỗi trạng thái phím mới được dựng từ phần vỏ bàn phím rồi chiếu ra màn hình và lưu cache, tránh sót viền phím trắng/tím do khác biệt render giữa các hệ điều hành. Cache tự dựng lại khi đổi DPI màn hình.
 
 Đã thêm kiểm tra biên ảnh ở DPI 100/125/150/200%, trạng thái nhấn phím và đổi DPI. Các kiểm tra render này không thay thế thử thủ công mọi cấu hình desktop Windows.
 

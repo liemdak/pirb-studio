@@ -7,7 +7,7 @@ Sửa các mảnh viền trắng/tím: dựng khung tối trực tiếp ở kíc
 - Remove the duplicate fine texture outline and tiny front-edge ornament; keep the front strip plain.
 - Rasterize the matte desk edge once at final device resolution; use a physical-pixel-aware inner frame, without a bright subpixel outline.
 - Add 12 board units of front clearance and clip keyboard shadows/RGB to the inset surface.
-- Replace projected dirty-region updates with world-space Source-composition patches, then project once. Match a fresh full render within one premultiplied channel bit.
+- Rebuild each new keyboard state from the bare case, then project once and cache it. Avoid platform-dependent dirty-region/font clipping; match a fresh full render.
 - Invalidate screen/keyboard caches when the window device-pixel ratio changes.
 - Add final boundary, held-key and fractional-DPI regressions. Review idle/pressed scenes on white and dark backgrounds before publishing.
 

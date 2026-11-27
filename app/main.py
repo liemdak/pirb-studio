@@ -3,7 +3,7 @@ import sys, math, time, ctypes, random, json
 from collections import OrderedDict
 from pathlib import Path
 from PySide6.QtCore import Qt, QTimer, QRectF, QPointF, QSettings, QStandardPaths, QLockFile
-from PySide6.QtGui import QColor, QPainter, QPen, QPainterPath, QPixmap, QIcon, QCursor, QTransform, QPolygonF, QLinearGradient, QRadialGradient, QRegion
+from PySide6.QtGui import QColor, QPainter, QPen, QPainterPath, QPixmap, QIcon, QCursor, QTransform, QPolygonF, QLinearGradient, QRadialGradient
 from PySide6.QtWidgets import QApplication, QWidget, QMenu, QSystemTrayIcon, QMessageBox
 from keyboard_geometry import KEYS
 from devices import draw_keyboard, draw_mouse
@@ -244,18 +244,11 @@ class Companion(QWidget):
         if not state:return self._screen_cache[1]
         if state in self._keyboard_state_cache:
             self._keyboard_state_cache.move_to_end(state);return self._keyboard_state_cache[state]
-        # Patch in world space before projection. Source composition replaces
-        # transparent pixels too, so no raised idle cap survives a key press.
-        region=QRegion()
-        for _,vk,rect in KEYS:
-            if vk in state:
-                bounds=self.board.mapRect(self.keyrect(rect)).adjusted(-4,-24,4,2)
-                region=region.united(QRegion(bounds.toAlignedRect()))
-        world=QPixmap(self.board_idle);p=QPainter(world);p.setRenderHint(QPainter.RenderHint.Antialiasing)
-        p.setClipRegion(region);p.setCompositionMode(QPainter.CompositionMode.CompositionMode_Source)
-        p.drawPixmap(0,0,self.board_base)
-        p.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceOver)
-        draw_keyboard(p,self.board,KEYS,self.keyrect,self.held,self.glow,draw_case=False,clip_region=region);p.end()
+        # Build each uncached state from the bare case. Dirty-region patches
+        # differ on Windows font/raster backends and can leave old cap pixels.
+        # Cache the completed projection so unchanged animation frames reuse it.
+        world=QPixmap(self.board_base);p=QPainter(world);p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        draw_keyboard(p,self.board,KEYS,self.keyrect,self.held,self.glow,draw_case=False);p.end()
         frame=self.project_keyboard(world)
         self._keyboard_state_cache[state]=frame
         budget=max(2,min(8,24*1024*1024//max(1,frame.width()*frame.height()*4)))
