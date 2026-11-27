@@ -68,7 +68,7 @@ Changes save automatically. Only one instance runs at a time. Startup with Windo
 
 ## Updates
 
-From **0.10.0**, PIRB checks public GitHub Releases a few seconds after startup and every **6 hours** while running. Checks are throttled across restarts. If a newer complete Windows release is available, it asks **Update now / Later**, with release notes. Choosing Later leaves the app unchanged; the same version is not prompted again in that session. Manual checks can show it again.
+From **PIRB Studio 0.9.1**, PIRB checks public GitHub Releases a few seconds after startup and every **6 hours** while running. Checks are throttled across restarts. If a newer complete Windows release is available, it asks **Update now / Later**, with release notes. Choosing Later leaves the app unchanged; the same version is not prompted again in that session. Manual checks can show it again.
 
 In **Settings → Updates**, turn automatic checks on/off, include/exclude pre-releases, or press **Check for updates now**. Pre-releases are included by default while this project is in its 0.x preview stage. Drafts, incomplete releases, equal/older versions and mismatched asset URLs are ignored. Automatic failures stay quiet; manual failures show a message.
 
@@ -106,9 +106,9 @@ Build complete Windows distributions:
 .venv\Scripts\python tools\build_windows.py
 ```
 
-The same tool cross-compiles on Linux. It downloads checksum-pinned official Windows CPython 3.12.10 and PySide6/Qt 6.8.3, resolves native dependencies and builds launcher/installer/uninstaller with Zig 0.13.0. Outputs: Setup, portable ZIP and `SHA256SUMS.txt.txt` in `dist/`. `--cache PATH` reuses verified inputs. Build downloads require network; the installed app does not. See [release procedure](docs/RELEASING.md).
+The same tool cross-compiles on Linux. It downloads checksum-pinned official Windows CPython 3.12.10 and PySide6/Qt 6.8.3, resolves native dependencies and builds launcher/installer/uninstaller with Zig 0.13.0. Outputs: Setup, portable ZIP and `SHA256SUMS.txt` in `dist/`. `--cache PATH` reuses verified inputs. Build downloads require network; the installed app does not. See [release procedure](docs/RELEASING.md).
 
-GitHub Actions tests source on Linux, builds on Windows and smoke-tests portable startup. A version tag publishes matching release assets when workflow permissions permit. See [validation status](docs/VALIDATION.md); a committed workflow is not evidence that it has run.
+GitHub Actions tests source on Linux, builds on Windows and smoke-tests portable startup. A successful main-branch build publishes a new version as a pre-release when that version has no published assets; matching tags are also supported. Published assets are preserved, so bump VERSION for the next update. See [validation status](docs/VALIDATION.md); a committed workflow is not evidence that it has run.
 
 ## Version and credits
 

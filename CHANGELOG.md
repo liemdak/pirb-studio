@@ -2,6 +2,8 @@
 
 ## 0.10.0 — Pirb Desk
 
+Đổi tên thành **Pirb Desk**. Sửa phối cảnh mặt bàn, thêm nền Pyth Classic và nhập WAV riêng cho từng nhóm phím/chuột. Giữ thiết lập cũ và khả năng cập nhật từ PIRB Studio 0.9.x. Vào Giao diện → Dùng nền Pyth Classic để chuyển từ nền cũ; âm tùy chỉnh ở tab Âm thanh. Không cần cài Python riêng.
+
 - Rename PIRB Studio to Pirb Desk in app, tray, settings, launcher, installer, shortcuts and documentation; preserve data/settings/instance-lock IDs and repository URL.
 - Share the tabletop/texture plane with the keyboard; fix opposing depth axes, add a thin front/right desk fascia and update rotated scene bounds.
 - Add a procedural Pyth Classic purple community desk theme. New profiles default to it; existing choices remain intact, with a one-click theme button.

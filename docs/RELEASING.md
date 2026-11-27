@@ -4,7 +4,7 @@
 2. Install requirements-build.txt in Python 3.12. Run `python -m unittest discover -s tests -v`, then `python tools/build_windows.py`.
 3. On Windows, check Setup, shortcuts, global input, audio, transparency, language persistence and Apps uninstall. Do not label a cross-compiled installer as tested on Windows unless it was executed there.
 4. Commit source/assets/docs only. Generated executables, caches, dist and private configuration stay out of git; distribute binaries through Releases.
-5. Push the source, tag the matching commit v0.10.0 and push the tag. The workflow checks tag/version alignment, builds on Windows, smoke-tests portable startup and publishes Setup, portable ZIP and SHA256SUMS. It does not test interactive installation/uninstallation.
+5. Push the source to main with a new VERSION. After Linux tests and Windows tests/build/audit/smoke pass, the workflow creates v<VERSION> at that exact commit, uploads all assets to a draft and publishes a pre-release. Existing published assets are preserved; bump VERSION for a new build. Matching manually pushed tags are also supported and checked against VERSION. The workflow does not test interactive installation/uninstallation.
 
 Manual repository setup (choose your account/visibility first):
 
