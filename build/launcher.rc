@@ -1,7 +1,7 @@
 1 ICON "pirb.ico"
 1 VERSIONINFO
-FILEVERSION 0,10,1,0
-PRODUCTVERSION 0,10,1,0
+FILEVERSION 0,10,2,0
+PRODUCTVERSION 0,10,2,0
 FILEFLAGSMASK 0x3fL
 FILEOS 0x00040004
 FILETYPE 0x00000001
@@ -12,11 +12,11 @@ BEGIN
   BEGIN
    VALUE "CompanyName", "PIRB Desktop Community\0"
    VALUE "FileDescription", "Pirb Desk Desktop Companion\0"
-   VALUE "FileVersion", "0.10.1\0"
+   VALUE "FileVersion", "0.10.2\0"
    VALUE "InternalName", "PIRB\0"
    VALUE "OriginalFilename", "PirbDesk.exe\0"
    VALUE "ProductName", "Pirb Desk\0"
-   VALUE "ProductVersion", "0.10.1\0"
+   VALUE "ProductVersion", "0.10.2\0"
   END
  END
  BLOCK "VarFileInfo"

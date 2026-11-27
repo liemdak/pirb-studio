@@ -10,7 +10,7 @@ from pathlib import Path
 os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'app'))
 from PySide6.QtCore import QPointF,QSettings
-from PySide6.QtGui import QPainterPath,QPolygonF,QTransform
+from PySide6.QtGui import QPainterPath,QPolygonF,QTransform,QPainterPathStroker,QPainter,QImage
 from PySide6.QtWidgets import QApplication
 import custom_audio as audio
 import desk_geometry as desk
@@ -40,17 +40,35 @@ class DeskAndAudioTests(unittest.TestCase):
         shape=QPainterPath();shape.addPolygon(QPolygonF(desk.tabletop_corners()))
         self.assertTrue(shape.contains(QPointF(245,420)))
 
-    def test_table_shell_is_continuous_and_side_vectors_match_after_rotation(self):
-        body=desk.desk_body_path()
-        self.assertEqual(len(body.toFillPolygons()),1)
-        a,b,c,d=desk.tabletop_corners()
-        for start,end in ((d,c),(c,b)):
-            self.assertTrue(body.contains((start+end)/2+QPointF(0,desk.DESK_DEPTH/2)))
+    def test_whole_outer_body_has_four_corners_and_both_opposite_pairs_match(self):
+        body=desk.desk_body_path();polygon=body.toFillPolygon()
+        self.assertEqual(len({(round(p.x(),7),round(p.y(),7)) for p in polygon}),4)
+        self.assertEqual(len(desk.desk_outline()),4)
+        self.assertEqual(body.boundingRect(),desk.tabletop_path().boundingRect())
+        self.assertLess(desk.front_fascia_path().subtracted(body).boundingRect().width(),1e-6)
         for angle in range(-180,181,15):
-            transform=QTransform();transform.rotate(angle)
-            aa,bb,cc,dd=[transform.map(p) for p in (a,b,c,d)]
-            self.assertLess(((dd-aa)-(cc-bb)).manhattanLength(),1e-7)
-        self.assertLessEqual(body.boundingRect().height(),desk.tabletop_path().boundingRect().height()+desk.DESK_DEPTH+.001)
+            for scale in (.18,.32,.6,1.2):
+                transform=QTransform();transform.rotate(angle);transform.scale(scale,scale)
+                a,b,c,d=[transform.map(p) for p in desk.desk_outline()]
+                self.assertLess(((b-a)-(c-d)).manhattanLength(),1e-7)
+                self.assertLess(((d-a)-(c-b)).manhattanLength(),1e-7)
+
+    def test_actual_table_and_rgb_pixels_stay_inside_the_four_corner_outline(self):
+        root=Path(__file__).resolve().parents[1]/'app'
+        stroke=QPainterPathStroker();stroke.setWidth(1.5)
+        shape=desk.desk_body_path();allowed=shape.united(stroke.createStroke(shape))
+        for mode in ('off','purple','rainbow'):
+            layer=skins.desk_surface(root,dict(preferences.DEFAULTS))
+            painter=QPainter(layer);skins.draw_rgb(painter,desk.keyboard_projection(),mode,1.0);painter.end()
+            image=layer.toImage().convertToFormat(QImage.Format.Format_RGBA8888)
+            data=bytes(image.constBits());stride=image.bytesPerLine();dpr=layer.devicePixelRatio()
+            for y in range(image.height()):
+                alpha=data[y*stride+3:y*stride+image.width()*4:4]
+                painted=[x for x,value in enumerate(alpha) if value>32]
+                if not painted:continue
+                for x in (painted[0],painted[-1]):
+                    self.assertTrue(allowed.contains(QPointF((x+.5)/dpr,(y+.5)/dpr)),
+                                    f'{mode}: visible pixel outside outline at {(x,y)}')
 
     def test_surface_is_not_clipped_and_old_images_still_render(self):
         root=Path(__file__).resolve().parents[1]/'app'

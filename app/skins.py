@@ -2,7 +2,7 @@
 from PySide6.QtCore import Qt,QPointF,QRectF
 from PySide6.QtGui import QPixmap,QPainter,QPolygonF,QColor,QTransform,QPainterPath,QLinearGradient,QPen,QRadialGradient,QFont
 from preferences import load_image
-from desk_geometry import tabletop_corners,texture_projection,tabletop_path,desk_body_path
+from desk_geometry import tabletop_corners,texture_projection,tabletop_path,desk_body_path,front_fascia_path,DESK_DEPTH
 
 EDGE=tabletop_corners()
 _CLASSIC=None
@@ -48,11 +48,8 @@ def desk_surface(root,prefs):
     layer=QPixmap(2200,1360);layer.setDevicePixelRatio(2);layer.fill(Qt.GlobalColor.transparent)
     p=QPainter(layer);p.setRenderHint(QPainter.RenderHint.Antialiasing);p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
     back_left,back_right,front_right,front_left=EDGE
-    # A single thin shell avoids a darker right strip and double-stroked corner.
-    p.setBrush(QColor('#33283f'))
-    p.setPen(QPen(QColor('#45364f'),.9,Qt.PenStyle.SolidLine,Qt.PenCapStyle.RoundCap,Qt.PenJoinStyle.RoundJoin))
-    p.drawPath(desk_body_path())
-    shape=tabletop_path();p.setClipPath(shape)
+    # All material, bevel and border paint stays inside ONE four-corner outline.
+    shape=desk_body_path();p.setClipPath(shape)
     gradient=QLinearGradient(200,300,850,620);gradient.setColorAt(0,QColor('#403448'));gradient.setColorAt(1,QColor('#282333'));p.fillPath(shape,gradient)
     path=skin_path(root,prefs)
     image=classic_surface() if prefs['skin']=='pyth_classic' else None
@@ -66,14 +63,18 @@ def desk_surface(root,prefs):
         p.save();p.setTransform(texture_projection(),True)
         p.drawPixmap(QRectF(0,0,1000,600),image,source_crop(image.width(),image.height(),prefs));p.restore()
         p.fillPath(shape,QColor(19,13,31,round(255*(1-prefs['brightness']/100))))
-    p.setClipping(False);p.setBrush(Qt.BrushStyle.NoBrush)
-    p.setPen(QPen(QColor('#8c719e'),1.25,Qt.PenStyle.SolidLine,Qt.PenCapStyle.RoundCap,Qt.PenJoinStyle.RoundJoin));p.drawPath(shape)
-    p.setPen(QPen(QColor(205,181,238,70),1.1));p.drawLine(front_left,front_right)
+    band=front_fascia_path()
+    material=QLinearGradient(front_left,front_left+QPointF(0,-DESK_DEPTH))
+    material.setColorAt(0,QColor('#30253d'));material.setColorAt(1,QColor('#483554'))
+    p.fillPath(band,material)
+    p.setBrush(Qt.BrushStyle.NoBrush)
+    p.setPen(QPen(QColor('#8c719e'),1.5,Qt.PenStyle.SolidLine,Qt.PenCapStyle.SquareCap,Qt.PenJoinStyle.MiterJoin))
+    p.drawPath(shape)
     p.end();return layer
 
 def draw_rgb(p,board,mode,elapsed):
     if mode=='off':return
-    p.save();p.setTransform(board,True)
+    p.save();p.setClipPath(tabletop_path(),Qt.ClipOperation.IntersectClip);p.setTransform(board,True)
     r=QRectF(-13,-13,23*24+26,6.4*28+26)
     for spread,alpha in [(8,12),(5,25),(2,70)]:
         gradient=QLinearGradient(r.topLeft(),r.topRight())

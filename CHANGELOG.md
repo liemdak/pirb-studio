@@ -1,5 +1,14 @@
 # Pirb Desk changelog
 
+## 0.10.2 — One parallelogram for the whole desk
+
+Sửa đúng toàn bộ đường bao: bốn góc, cả hai cặp cạnh đối diện song song. Bỏ phần thân bàn sáu đỉnh; vẽ viền và dải cạnh bên trong cùng một hình bình hành, giới hạn cả RGB trong hình đó.
+
+- Replace the extruded shell with exactly the tabletop quadrilateral; move the front fascia inside it.
+- Clip material, border and RGB to the same silhouette. Keep keyboard projection, mouse, wing contact and user preferences unchanged.
+- Test all four corners, both opposite-edge pairs and the actual rendered alpha boundary, including purple/rainbow RGB. Review before publishing.
+
+
 ## 0.10.1 — Consistent desk edges
 
 Sửa cảm giác góc bàn bên phải dốc khác bên trái: dựng cạnh bàn thành một khối liền, giảm độ dày và thống nhất viền/màu, bỏ nét chồng ở góc trước phải. Giữ nguyên mặt phẳng bàn, bố cục và tùy chỉnh cũ.

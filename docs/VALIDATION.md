@@ -1,4 +1,4 @@
-# Validation status — 0.10.1
+# Validation status — 0.10.2
 
 Local builds use Linux and official Windows x64 runtime inputs. Tests cover language changes without preference resets, persistence, dynamic image entries, menus, layout bounds, transform/contact regression and preference migration. UI images are rendered offscreen.
 
@@ -15,3 +15,8 @@ Update tests cover semantic version ordering, release channels/assets/URLs, no d
 
 
 0.10.1 adds a regression for a single connected desk shell, covered front/right depth regions and identical side vectors through 25 scene rotations. There are 23 tests in total. White-background visual captures check the asymmetric-edge perception that prompted this correction.
+
+
+0.10.2 checks the entire four-corner silhouette, not only the middle sections of its side edges. The tests cover both opposite vector pairs after rotations/scales, the inset fascia and every rendered scanline boundary including RGB. Native Windows build/startup and local visual review are distinct checks.
+
+Local 0.10.2 review passed all 24 tests and inspected full-app renders at widths 180/320/600 and rotations -9/0/30/90 degrees before publishing source. The new alpha-boundary test checks every painted scanline for the desk and both RGB modes.

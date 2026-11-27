@@ -1,4 +1,5 @@
-"""One plane for the keyboard, tabletop, texture and view bounds."""
+"""One four-corner silhouette for every visible tabletop layer."""
+import math
 from PySide6.QtCore import QPointF, QRectF
 from PySide6.QtGui import QTransform, QPainterPath, QPolygonF
 
@@ -30,8 +31,7 @@ def texture_projection():
 
 
 def desk_outline():
-    points = tabletop_corners()
-    return points + [point + QPointF(0, DESK_DEPTH) for point in points]
+    return tabletop_corners()
 
 
 def tabletop_path():
@@ -42,15 +42,18 @@ def tabletop_path():
 
 
 def desk_body_path():
-    """One swept solid, without overlapping front/right fascia outlines."""
-    corners = tabletop_corners()
-    offset = QPointF(0, DESK_DEPTH)
-    body = tabletop_path()
-    body = body.united(QTransform.fromTranslate(0, DESK_DEPTH).map(body))
-    for index, a in enumerate(corners):
-        b = corners[(index + 1) % len(corners)]
-        face = QPainterPath()
-        face.addPolygon(QPolygonF([a, b, b + offset, a + offset]))
-        face.closeSubpath()
-        body = body.united(face)
-    return body
+    """The complete outer body is the same four-corner parallelogram."""
+    return tabletop_path()
+
+
+def front_fascia_path():
+    """Shade a narrow band INSIDE the outline, along the shared depth axis."""
+    back_left, _, front_right, front_left = tabletop_corners()
+    direction = back_left - front_left
+    length = math.hypot(direction.x(), direction.y())
+    inset = direction * min(0.1, DESK_DEPTH / max(1.0, length))
+    path = QPainterPath()
+    path.addPolygon(QPolygonF([
+        front_left, front_right, front_right + inset, front_left + inset]))
+    path.closeSubpath()
+    return path
