@@ -1,4 +1,4 @@
-# Validation status — 0.10.0
+# Validation status — 0.10.1
 
 Local builds use Linux and official Windows x64 runtime inputs. Tests cover language changes without preference resets, persistence, dynamic image entries, menus, layout bounds, transform/contact regression and preference migration. UI images are rendered offscreen.
 
@@ -12,3 +12,6 @@ Update tests cover semantic version ordering, release channels/assets/URLs, no d
 
 
 0.10.0 adds 22 local regression tests in total: shared tabletop/keyboard and texture axes, surface bounds and old backgrounds, bounded WAV validation/copy/source-removal, per-category fallback, old preference retention, custom sound UI/VI-EN/reset and renamed/legacy release selection. Updated offscreen UI and scene captures are in this directory. These checks do not establish real Windows audio, interactive install/uninstall or full update success; report actual CI results separately.
+
+
+0.10.1 adds a regression for a single connected desk shell, covered front/right depth regions and identical side vectors through 25 scene rotations. There are 23 tests in total. White-background visual captures check the asymmetric-edge perception that prompted this correction.

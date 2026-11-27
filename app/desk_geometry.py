@@ -1,6 +1,6 @@
 """One plane for the keyboard, tabletop, texture and view bounds."""
 from PySide6.QtCore import QPointF, QRectF
-from PySide6.QtGui import QTransform
+from PySide6.QtGui import QTransform, QPainterPath, QPolygonF
 
 
 def keyboard_projection():
@@ -10,7 +10,7 @@ def keyboard_projection():
 # Board units. Include the mouse to the left of the keyboard in screen space.
 DESK_RECT = QRectF(-45, -20, 855, 255)
 TEXTURE_RECT = QRectF(0, 0, 1000, 600)
-DESK_DEPTH = 10
+DESK_DEPTH = 6
 
 
 def tabletop_corners():
@@ -32,3 +32,25 @@ def texture_projection():
 def desk_outline():
     points = tabletop_corners()
     return points + [point + QPointF(0, DESK_DEPTH) for point in points]
+
+
+def tabletop_path():
+    path = QPainterPath()
+    path.addPolygon(QPolygonF(tabletop_corners()))
+    path.closeSubpath()
+    return path
+
+
+def desk_body_path():
+    """One swept solid, without overlapping front/right fascia outlines."""
+    corners = tabletop_corners()
+    offset = QPointF(0, DESK_DEPTH)
+    body = tabletop_path()
+    body = body.united(QTransform.fromTranslate(0, DESK_DEPTH).map(body))
+    for index, a in enumerate(corners):
+        b = corners[(index + 1) % len(corners)]
+        face = QPainterPath()
+        face.addPolygon(QPolygonF([a, b, b + offset, a + offset]))
+        face.closeSubpath()
+        body = body.united(face)
+    return body

@@ -10,7 +10,7 @@ from pathlib import Path
 os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'app'))
 from PySide6.QtCore import QPointF,QSettings
-from PySide6.QtGui import QPainterPath,QPolygonF
+from PySide6.QtGui import QPainterPath,QPolygonF,QTransform
 from PySide6.QtWidgets import QApplication
 import custom_audio as audio
 import desk_geometry as desk
@@ -39,6 +39,18 @@ class DeskAndAudioTests(unittest.TestCase):
         self.assertLess(front_left.x(),back_left.x());self.assertGreater(front_left.y(),back_left.y())
         shape=QPainterPath();shape.addPolygon(QPolygonF(desk.tabletop_corners()))
         self.assertTrue(shape.contains(QPointF(245,420)))
+
+    def test_table_shell_is_continuous_and_side_vectors_match_after_rotation(self):
+        body=desk.desk_body_path()
+        self.assertEqual(len(body.toFillPolygons()),1)
+        a,b,c,d=desk.tabletop_corners()
+        for start,end in ((d,c),(c,b)):
+            self.assertTrue(body.contains((start+end)/2+QPointF(0,desk.DESK_DEPTH/2)))
+        for angle in range(-180,181,15):
+            transform=QTransform();transform.rotate(angle)
+            aa,bb,cc,dd=[transform.map(p) for p in (a,b,c,d)]
+            self.assertLess(((dd-aa)-(cc-bb)).manhattanLength(),1e-7)
+        self.assertLessEqual(body.boundingRect().height(),desk.tabletop_path().boundingRect().height()+desk.DESK_DEPTH+.001)
 
     def test_surface_is_not_clipped_and_old_images_still_render(self):
         root=Path(__file__).resolve().parents[1]/'app'

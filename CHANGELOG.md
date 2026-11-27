@@ -1,5 +1,14 @@
 # Pirb Desk changelog
 
+## 0.10.1 — Consistent desk edges
+
+Sửa cảm giác góc bàn bên phải dốc khác bên trái: dựng cạnh bàn thành một khối liền, giảm độ dày và thống nhất viền/màu, bỏ nét chồng ở góc trước phải. Giữ nguyên mặt phẳng bàn, bố cục và tùy chỉnh cũ.
+
+- Replace separately outlined front/right fascia polygons with one continuous swept body.
+- Reduce desk thickness from 10 to 6 scene units and use one shell material with rounded joins.
+- Keep identical tabletop side vectors and all keyboard/wing contacts; add a shell/rotation regression and white-background visual capture.
+
+
 ## 0.10.0 — Pirb Desk
 
 Đổi tên thành **Pirb Desk**. Sửa phối cảnh mặt bàn, thêm nền Pyth Classic và nhập WAV riêng cho từng nhóm phím/chuột. Giữ thiết lập cũ và khả năng cập nhật từ PIRB Studio 0.9.x. Vào Giao diện → Dùng nền Pyth Classic để chuyển từ nền cũ; âm tùy chỉnh ở tab Âm thanh. Không cần cài Python riêng.
