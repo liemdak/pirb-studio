@@ -1,7 +1,8 @@
 """One four-corner silhouette for every visible tabletop layer."""
 import math
-from PySide6.QtCore import QPointF, QRectF
-from PySide6.QtGui import QTransform, QPainterPath, QPolygonF
+from functools import lru_cache
+from PySide6.QtCore import QPointF, QRectF, Qt
+from PySide6.QtGui import QTransform, QPainterPath, QPolygonF, QPainterPathStroker
 
 
 def keyboard_projection():
@@ -9,7 +10,7 @@ def keyboard_projection():
 
 
 # Board units. Include the mouse to the left of the keyboard in screen space.
-DESK_RECT = QRectF(-45, -20, 855, 255)
+DESK_RECT = QRectF(-45, -32, 855, 267)
 TEXTURE_RECT = QRectF(0, 0, 1000, 600)
 DESK_DEPTH = 6
 
@@ -44,6 +45,22 @@ def tabletop_path():
 def desk_body_path():
     """The complete outer body is the same four-corner parallelogram."""
     return tabletop_path()
+
+
+def content_inset(painter):
+    """Keep at least 1.25 physical pixels of matte frame at every zoom/DPI."""
+    matrix = painter.worldTransform()
+    pixels_per_unit = math.hypot(matrix.m11(), matrix.m12()) * painter.device().devicePixelRatioF()
+    return round(max(3.0, 1.25 / max(.001, pixels_per_unit)), 6)
+
+
+@lru_cache(maxsize=64)
+def desk_content_path(inset=3.0):
+    stroke = QPainterPathStroker()
+    stroke.setWidth(inset * 2)
+    stroke.setJoinStyle(Qt.PenJoinStyle.MiterJoin)
+    outline = tabletop_path()
+    return outline.subtracted(stroke.createStroke(outline))
 
 
 def front_fascia_path():

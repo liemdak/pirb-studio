@@ -38,10 +38,10 @@ static void remove_shortcut(int folder){
 }
 void pirb_uninstall_start(void){
  DWORD n=GetEnvironmentVariableW(L"LOCALAPPDATA",root,32768);if(!n||n>31000)fail(L"Cannot locate the install folder / Không tìm thấy thư mục cài.");
- lstrcatW(root,L"\\Programs\\PIRBStudio\\0.10.2\\PirbDesk");lstrcpyW(exe,root);lstrcatW(exe,L"\\PirbDesk.exe");
+ lstrcatW(root,L"\\Programs\\PIRBStudio\\0.10.3\\PirbDesk");lstrcpyW(exe,root);lstrcatW(exe,L"\\PirbDesk.exe");
  GetModuleFileNameW(NULL,self,32768);lstrcpyW(command,root);lstrcatW(command,L"\\Uninstall.exe");
  if(!lstrcmpiW(self,command)){
-  if(MessageBoxW(NULL,L"Remove Pirb Desk 0.10.2? Your preferences and custom images will be kept.\n\nGỡ Pirb Desk 0.10.2? Tùy chọn và ảnh riêng được giữ lại.\nHãy thoát PIRB trước / Please exit PIRB first.",title,MB_YESNO|MB_ICONQUESTION)!=IDYES)ExitProcess(0);
+  if(MessageBoxW(NULL,L"Remove Pirb Desk 0.10.3? Your preferences and custom images will be kept.\n\nGỡ Pirb Desk 0.10.3? Tùy chọn và ảnh riêng được giữ lại.\nHãy thoát PIRB trước / Please exit PIRB first.",title,MB_YESNO|MB_ICONQUESTION)!=IDYES)ExitProcess(0);
   HANDLE check=CreateFileW(exe,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
   if(check==INVALID_HANDLE_VALUE)fail(L"Exit PIRB and try again / Hãy thoát hẳn PIRB rồi thử lại.");CloseHandle(check);
   GetTempPathW(32768,tmp);if(!GetTempFileNameW(tmp,L"pru",0,copy))fail(L"Cannot create temporary file / Không tạo được tệp tạm.");
@@ -54,11 +54,11 @@ void pirb_uninstall_start(void){
  BOOL worker=FALSE;const wchar_t *arg=GetCommandLineW();while(*arg){if(!lstrcmpW(arg,L"--remove")){worker=TRUE;break;}arg++;}if(!worker)ExitProcess(1);
  Sleep(600);BOOL removed=FALSE;
  for(int i=0;i<8&&!removed;i++){removed=remove_tree(root);if(!removed)Sleep(200);}
- if(!removed)fail(L"Some files could not be removed. Exit PIRB and remove the 0.10.2 folder manually.\nMột số tệp chưa được gỡ. Hãy thoát PIRB rồi xóa thư mục 0.10.2.");
+ if(!removed)fail(L"Some files could not be removed. Exit PIRB and remove the 0.10.3 folder manually.\nMột số tệp chưa được gỡ. Hãy thoát PIRB rồi xóa thư mục 0.10.3.");
  CoInitializeEx(NULL,COINIT_APARTMENTTHREADED);remove_shortcut(CSIDL_DESKTOPDIRECTORY);remove_shortcut(CSIDL_PROGRAMS);CoUninitialize();
  HKEY key;const wchar_t *reg=L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\PIRBStudio";wchar_t version[64];DWORD bytes=sizeof(version);
  if(RegOpenKeyExW(HKEY_CURRENT_USER,reg,0,KEY_QUERY_VALUE,&key)==ERROR_SUCCESS){
-  BOOL current=RegQueryValueExW(key,L"DisplayVersion",NULL,NULL,(BYTE*)version,&bytes)==ERROR_SUCCESS&&!lstrcmpW(version,L"0.10.2");RegCloseKey(key);if(current)RegDeleteKeyW(HKEY_CURRENT_USER,reg);
+  BOOL current=RegQueryValueExW(key,L"DisplayVersion",NULL,NULL,(BYTE*)version,&bytes)==ERROR_SUCCESS&&!lstrcmpW(version,L"0.10.3");RegCloseKey(key);if(current)RegDeleteKeyW(HKEY_CURRENT_USER,reg);
  }
- MessageBoxW(NULL,L"Pirb Desk 0.10.2 removed. Preferences kept.\nĐã gỡ Pirb Desk 0.10.2. Tùy chọn được giữ lại.",title,MB_OK|MB_ICONINFORMATION);ExitProcess(0);
+ MessageBoxW(NULL,L"Pirb Desk 0.10.3 removed. Preferences kept.\nĐã gỡ Pirb Desk 0.10.3. Tùy chọn được giữ lại.",title,MB_OK|MB_ICONINFORMATION);ExitProcess(0);
 }

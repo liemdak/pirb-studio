@@ -11,11 +11,11 @@ Manual repository setup (choose your account/visibility first):
 ```powershell
 git init -b main
 git add .
-git commit -m "Release Pirb Desk 0.10.2 with bilingual Pythenians settings"
+git commit -m "Release Pirb Desk 0.10.3 with bilingual Pythenians settings"
 gh auth login
 gh repo create pirb-studio --private --source . --remote origin --push
-git tag v0.10.2
-git push origin v0.10.2
+git tag v0.10.3
+git push origin v0.10.3
 ```
 
 No public visibility or open-source license is assumed. Organization policies may require allowing Actions to write repository contents.

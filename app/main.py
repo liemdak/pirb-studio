@@ -9,8 +9,8 @@ from keyboard_geometry import KEYS
 from devices import draw_keyboard, draw_mouse
 from rig import draw_rig,chest_path
 from preferences import load_preferences
-from skins import desk_surface,draw_rgb
-from desk_geometry import keyboard_projection,desk_outline
+from skins import paint_desk,prepare_desk_material,draw_rgb
+from desk_geometry import keyboard_projection,desk_outline,desk_content_path,content_inset
 from sound_engine import SoundEngine
 from expressions import Expressions,draw_expression
 from view import view_geometry,corner_position
@@ -216,38 +216,51 @@ class Companion(QWidget):
             draw_keyboard(cache,self.board,KEYS,self.keyrect,set(),{},draw_case=False);cache.end()
     def scene_mapping(self):
         mapping=QTransform(self._view_transform);mapping.translate(0,70);return mapping
+    def screen_target(self):
+        dpr=self.devicePixelRatioF()
+        target=QPixmap(math.ceil(self.width()*dpr),math.ceil(self.height()*dpr))
+        target.setDevicePixelRatio(dpr);target.fill(Qt.GlobalColor.transparent)
+        return target
+    def project_keyboard(self,world):
+        target=self.screen_target();p=QPainter(target)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing);p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        p.setTransform(self.scene_mapping());p.setClipPath(desk_content_path(content_inset(p)))
+        p.drawPixmap(0,0,world);p.end();return target
     def prepare_screen_cache(self):
-        if self._screen_cache is not None:return
+        geometry=(self.width(),self.height(),self.devicePixelRatioF())
+        if self._screen_cache is not None and getattr(self,'_screen_cache_geometry',None)==geometry:return
         self.ensure_board_cache()
-        if self.desk_cache is None:self.desk_cache=desk_surface(ROOT,self.prefs)
-        result=[];dpr=self.devicePixelRatioF()
-        for index,source in enumerate((self.desk_cache,self.board_idle,self.board_base)):
-            target=QPixmap(math.ceil(self.width()*dpr),math.ceil(self.height()*dpr));target.setDevicePixelRatio(dpr);target.fill(Qt.GlobalColor.transparent)
-            cache=QPainter(target);cache.setRenderHint(QPainter.RenderHint.Antialiasing);cache.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform);cache.setTransform(self.scene_mapping());cache.drawPixmap(0,0,source)
-            if index==0 and self.prefs['rgb']=='purple':draw_rgb(cache,self.board,'purple',0)
-            cache.end();result.append(target)
-        self._screen_cache=result;self._keyboard_state_cache=OrderedDict()
+        if self.desk_cache is None:self.desk_cache=prepare_desk_material(ROOT,self.prefs)
+        target=self.screen_target();p=QPainter(target)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing);p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        p.setTransform(self.scene_mapping());paint_desk(p,self.prefs,self.desk_cache)
+        if self.prefs['rgb']=='purple':draw_rgb(p,self.board,'purple',0)
+        p.end()
+        self._screen_cache=[target,self.project_keyboard(self.board_idle),self.project_keyboard(self.board_base)]
+        self._screen_cache_geometry=geometry
+        self._keyboard_state_cache=OrderedDict()
     def keyboard_screen(self):
         state=tuple(sorted(self.held|set(self.glow)))
         if not state:return self._screen_cache[1]
         if state in self._keyboard_state_cache:
             self._keyboard_state_cache.move_to_end(state);return self._keyboard_state_cache[state]
-        frame=QPixmap(self._screen_cache[1]);cache=QPainter(frame);cache.setRenderHint(QPainter.RenderHint.Antialiasing);cache.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform);self.keyboard_active(cache);cache.end()
+        # Patch in world space before projection. Source composition replaces
+        # transparent pixels too, so no raised idle cap survives a key press.
+        region=QRegion()
+        for _,vk,rect in KEYS:
+            if vk in state:
+                bounds=self.board.mapRect(self.keyrect(rect)).adjusted(-4,-24,4,2)
+                region=region.united(QRegion(bounds.toAlignedRect()))
+        world=QPixmap(self.board_idle);p=QPainter(world);p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        p.setClipRegion(region);p.setCompositionMode(QPainter.CompositionMode.CompositionMode_Source)
+        p.drawPixmap(0,0,self.board_base)
+        p.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceOver)
+        draw_keyboard(p,self.board,KEYS,self.keyrect,self.held,self.glow,draw_case=False,clip_region=region);p.end()
+        frame=self.project_keyboard(world)
         self._keyboard_state_cache[state]=frame
         budget=max(2,min(8,24*1024*1024//max(1,frame.width()*frame.height()*4)))
         while len(self._keyboard_state_cache)>budget:self._keyboard_state_cache.popitem(last=False)
         return frame
-    def keyboard_active(self,p):
-        active=self.held|set(self.glow)
-        if not active:return
-        region=QRegion()
-        for _,vk,r in KEYS:
-            if vk in active:region=region.united(QRegion(self.board.mapRect(self.keyrect(r)).adjusted(-3,-23,3,3).toAlignedRect()))
-        screen_region=self.scene_mapping().map(region)
-        # Restore the already-transformed plate and redraw only clipped neighbours.
-        p.save();p.setClipRegion(screen_region);p.drawPixmap(0,0,self._screen_cache[2]);p.setTransform(self.scene_mapping())
-        draw_keyboard(p,self.board,KEYS,self.keyrect,self.held,self.glow,draw_case=False,clip_region=region)
-        p.restore()
     def draw_mouse_cached(self,p):
         state=tuple(sorted(self.buttons & {1,2}))
         if state not in self._mouse_cache:

@@ -1,14 +1,19 @@
-# Pirb Desk 0.10.2
+# Pirb Desk 0.10.3
 
 Previously **PIRB Studio**. Community desktop companion; not an official Pyth product. The repository URL and stable preference/data IDs stay unchanged for upgrades.
 
-![Pirb Desk / Pyth Classic](docs/desk-four-corners.jpg)
+![Pirb Desk / Pyth Classic](docs/desk-clean-border.png)
 
-## 0.10.2 — Four-corner desk outline
+## 0.10.3 — Clean lower border
+
+Draw the matte outer desk directly at final screen resolution, without a thin bright stroke or a second resampling of its edge. Remove the extra low-contrast texture outline and tiny front Greek ornament that broke into dashes when reduced. Keep texture, RGB and keyboard shadows inside an adaptive inset; add a small front clearance below the keyboard. Key updates now replace pixels in world space using Source composition before projection, preventing raised idle-key remnants. Rebuild caches when monitor DPI changes.
+
+Regression checks cover all four visible pixel boundaries at 100/125/150/200% DPI, key-held states against a full redraw and DPI cache changes. These are render tests, not a claim that every Windows desktop/compositor has been manually tested.
+
+## Four-corner desk outline (since 0.10.2)
 
 The complete desk silhouette is now a single parallelogram: four corners, with **both** pairs of opposite edges parallel. The front bevel and border are painted inside this shape; there is no extruded six-corner body outside it. Keyboard RGB is clipped to the same shape. This supersedes 0.10.1, which only thinned the extruded body.
 
-![Four-corner desk outline](docs/desk-four-corners.jpg)
 
 ## Features introduced in 0.10.0
 
@@ -18,12 +23,12 @@ The tabletop, texture and keyboard now share one projection, with a thin desk fa
 
 ## Upgrading and compatibility
 
-Download **Pirb_Desk_0.10.2_Windows_x64_Setup.exe**. Exit the old app, install, then use the **Pirb Desk** shortcut. Language, images, pose and volume are retained. Setup removes the old named shortcut only when it targets the app-owned installed PIRB.exe. Old version folders are retained.
+Download **Pirb_Desk_0.10.3_Windows_x64_Setup.exe**. Exit the old app, install, then use the **Pirb Desk** shortcut. Language, images, pose and volume are retained. Setup removes the old named shortcut only when it targets the app-owned installed PIRB.exe. Old version folders are retained.
 
-The release also includes **PIRB_Studio_0.10.2_Windows_x64_Setup.exe**, a byte-identical installer alias for installed 0.9.x update clients. Download only one Setup. Both names are listed in SHA256SUMS.txt. New clients accept the new and legacy asset names. The stable install parent and uninstall registry key keep their old internal IDs deliberately.
+The release also includes **PIRB_Studio_0.10.3_Windows_x64_Setup.exe**, a byte-identical installer alias for installed 0.9.x update clients. Download only one Setup. Both names are listed in SHA256SUMS.txt. New clients accept the new and legacy asset names. The stable install parent and uninstall registry key keep their old internal IDs deliberately.
 
 
-[Tiếng Việt](README_VI.md) · **Version 0.10.2** · Windows x64
+[Tiếng Việt](README_VI.md) · **Version 0.10.3** · Windows x64
 
 An animated pigeon desktop companion that reacts to typing and mouse clicks. Customize the scene, expressions, effects and sounds in a Pythenians-inspired purple, gold and ivory Settings window.
 
@@ -31,7 +36,7 @@ An animated pigeon desktop companion that reacts to typing and mouse clicks. Cus
 
 ## Install
 
-Download **Pirb_Desk_0.10.2_Windows_x64_Setup.exe** from the repository's **Releases**. GitHub's **Code → Download ZIP** downloads source code, not the ready-to-run app.
+Download **Pirb_Desk_0.10.3_Windows_x64_Setup.exe** from the repository's **Releases**. GitHub's **Code → Download ZIP** downloads source code, not the ready-to-run app.
 
 1. Exit old PIRB using its system-tray menu.
 2. Run Setup and confirm the installation.
@@ -39,9 +44,9 @@ Download **Pirb_Desk_0.10.2_Windows_x64_Setup.exe** from the repository's **Rele
 
 Python, Qt, artwork, sounds and both Settings languages are bundled. No Python, pip, WinRAR or administrator rights are needed. Setup and the companion work offline after downloading; optional update checks need internet. No separate Settings patch is needed.
 
-Install location: `%LOCALAPPDATA%\Programs\PIRBStudio\0.10.2\PirbDesk`.
+Install location: `%LOCALAPPDATA%\Programs\PIRBStudio\0.10.3\PirbDesk`.
 
-Portable alternative: extract the **entire** `Pirb_Desk_0.10.2_Windows_x64_Portable.zip`, then run `PirbDesk\PirbDesk.exe`. Keep `_internal` beside the executable. Do not run inside an archive viewer. Portable also stores preferences in your Windows user profile.
+Portable alternative: extract the **entire** `Pirb_Desk_0.10.3_Windows_x64_Portable.zip`, then run `PirbDesk\PirbDesk.exe`. Keep `_internal` beside the executable. Do not run inside an archive viewer. Portable also stores preferences in your Windows user profile.
 
 ## Requirements
 
@@ -86,7 +91,7 @@ After you choose Update now, the app downloads only this repository's Windows x6
 
 Exit the old app before upgrading. Existing preferences are reused. Old version folders/downloads are preserved, not automatically deleted.
 
-For an installed copy, exit PIRB and use **Windows Settings → Apps → Pirb Desk 0.10.2 → Uninstall**, or run its `Uninstall.exe`. Preferences/custom images remain. For portable, exit and delete its extracted folder; the included uninstaller targets the installed location only.
+For an installed copy, exit PIRB and use **Windows Settings → Apps → Pirb Desk 0.10.3 → Uninstall**, or run its `Uninstall.exe`. Preferences/custom images remain. For portable, exit and delete its extracted folder; the included uninstaller targets the installed location only.
 
 If startup fails, run `_internal\support\DIAGNOSTICS.bat`. Errors may be written to `%LOCALAPPDATA%\PIRBDesktop\startup-error.log`. For sound issues check Windows output/Volume Mixer and the Sound tab. If another app's keys do not animate, test with a normal non-elevated app. Report the exact message, PIRB version and Windows version. The community build is unsigned and Windows may warn about its publisher; the app does not require disabling protection.
 

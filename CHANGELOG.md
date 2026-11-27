@@ -1,5 +1,17 @@
 # Pirb Desk changelog
 
+## 0.10.3 — Clean borders and pressed-key compositing
+
+Sửa các mảnh viền trắng/tím: dựng khung tối trực tiếp ở kích thước hiển thị, giới hạn RGB/bóng và giữ một khoảng trống dưới bàn phím; thay điểm ảnh phím cũ trước khi vẽ trạng thái nhấn. Giữ nguyên hai cặp cạnh song song và tùy chỉnh đã lưu.
+
+- Remove the duplicate fine texture outline and tiny front-edge ornament; keep the front strip plain.
+- Rasterize the matte desk edge once at final device resolution; use a physical-pixel-aware inner frame, without a bright subpixel outline.
+- Add 12 board units of front clearance and clip keyboard shadows/RGB to the inset surface.
+- Replace projected dirty-region updates with world-space Source-composition patches, then project once. Match a fresh full render within one premultiplied channel bit.
+- Invalidate screen/keyboard caches when the window device-pixel ratio changes.
+- Add final boundary, held-key and fractional-DPI regressions. Review idle/pressed scenes on white and dark backgrounds before publishing.
+
+
 ## 0.10.2 — One parallelogram for the whole desk
 
 Sửa đúng toàn bộ đường bao: bốn góc, cả hai cặp cạnh đối diện song song. Bỏ phần thân bàn sáu đỉnh; vẽ viền và dải cạnh bên trong cùng một hình bình hành, giới hạn cả RGB trong hình đó.

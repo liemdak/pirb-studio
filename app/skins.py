@@ -2,7 +2,7 @@
 from PySide6.QtCore import Qt,QPointF,QRectF
 from PySide6.QtGui import QPixmap,QPainter,QPolygonF,QColor,QTransform,QPainterPath,QLinearGradient,QPen,QRadialGradient,QFont
 from preferences import load_image
-from desk_geometry import tabletop_corners,texture_projection,tabletop_path,desk_body_path,front_fascia_path,DESK_DEPTH
+from desk_geometry import tabletop_corners,texture_projection,tabletop_path,desk_body_path,front_fascia_path,DESK_DEPTH,desk_content_path,content_inset
 
 EDGE=tabletop_corners()
 _CLASSIC=None
@@ -20,12 +20,11 @@ def classic_surface():
     for i in range(5):
         curve=QPainterPath(QPointF(330+i*32,600));curve.cubicTo(490+i*32,350,690+i*28,480,1010,80+i*36)
         p.setPen(QPen(QColor(194,160,238,12+i*2),2));p.drawPath(curve)
-    # A quiet Greek-key border, kept clear of the keys and mouse.
+    # Keep detail on the back edge; the front stays plain at small sizes.
     p.setPen(QPen(QColor(204,179,118,75),2))
-    for y,sign in ((30,1),(570,-1)):
+    for y,sign in ((30,1),):
         for x in range(30,965,36):
             motif=QPainterPath(QPointF(x,y));motif.lineTo(x+26,y);motif.lineTo(x+26,y+sign*18);motif.lineTo(x+8,y+sign*18);motif.lineTo(x+8,y+sign*7);motif.lineTo(x+18,y+sign*7);p.drawPath(motif)
-    p.setPen(QPen(QColor(176,143,215,65),1));p.drawRoundedRect(QRectF(15,15,970,570),12,12)
     # Text is intentional community decoration, not a redrawn official logo.
     p.setPen(QColor('#d4c3ee'));font=QFont('Segoe UI',30,QFont.Weight.Bold);font.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing,4);p.setFont(font)
     p.drawText(QPointF(60,507),'PYTH')
@@ -44,37 +43,46 @@ def source_crop(width,height,prefs):
     cy=(height-croph)*(prefs['pan_y']+100)/200
     return QRectF(cx,cy,cropw,croph)
 
-def desk_surface(root,prefs):
-    layer=QPixmap(2200,1360);layer.setDevicePixelRatio(2);layer.fill(Qt.GlobalColor.transparent)
-    p=QPainter(layer);p.setRenderHint(QPainter.RenderHint.Antialiasing);p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
-    back_left,back_right,front_right,front_left=EDGE
-    # All material, bevel and border paint stays inside ONE four-corner outline.
-    shape=desk_body_path();p.setClipPath(shape)
-    gradient=QLinearGradient(200,300,850,620);gradient.setColorAt(0,QColor('#403448'));gradient.setColorAt(1,QColor('#282333'));p.fillPath(shape,gradient)
+def prepare_desk_material(root,prefs):
     path=skin_path(root,prefs)
     image=classic_surface() if prefs['skin']=='pyth_classic' else None
     if path:
         try:image=load_image(path)
         except (OSError,ValueError):pass
+    if image is None:return None,None
+    angle=0 if prefs['skin']=='pyth_classic' else prefs['skin_rotation']
+    image=image.transformed(QTransform().rotate(angle),Qt.TransformationMode.SmoothTransformation)
+    return image,source_crop(image.width(),image.height(),prefs)
+
+
+def paint_desk(p,prefs,material):
+    # Rasterize the outside edge ONCE at the final device size. Only dark matte
+    # material can reach it; texture, bevel, RGB and device shadows stay inset.
+    shape=desk_body_path()
+    p.save();p.fillPath(shape,QColor('#261e33'))
+    p.setClipPath(desk_content_path(content_inset(p)),Qt.ClipOperation.IntersectClip)
+    gradient=QLinearGradient(200,300,850,620);gradient.setColorAt(0,QColor('#403448'));gradient.setColorAt(1,QColor('#282333'));p.fillPath(shape,gradient)
+    image,crop=material
     if image is not None:
-        # Procedural default has a fixed readable orientation; photo controls remain independent.
-        angle=0 if prefs['skin']=='pyth_classic' else prefs['skin_rotation']
-        image=image.transformed(QTransform().rotate(angle),Qt.TransformationMode.SmoothTransformation)
         p.save();p.setTransform(texture_projection(),True)
-        p.drawPixmap(QRectF(0,0,1000,600),image,source_crop(image.width(),image.height(),prefs));p.restore()
+        p.drawPixmap(QRectF(0,0,1000,600),image,crop);p.restore()
         p.fillPath(shape,QColor(19,13,31,round(255*(1-prefs['brightness']/100))))
-    band=front_fascia_path()
-    material=QLinearGradient(front_left,front_left+QPointF(0,-DESK_DEPTH))
-    material.setColorAt(0,QColor('#30253d'));material.setColorAt(1,QColor('#483554'))
-    p.fillPath(band,material)
-    p.setBrush(Qt.BrushStyle.NoBrush)
-    p.setPen(QPen(QColor('#8c719e'),1.5,Qt.PenStyle.SolidLine,Qt.PenCapStyle.SquareCap,Qt.PenJoinStyle.MiterJoin))
-    p.drawPath(shape)
-    p.end();return layer
+    front_left=EDGE[3]
+    material_gradient=QLinearGradient(front_left,front_left+QPointF(0,-DESK_DEPTH))
+    material_gradient.setColorAt(0,QColor('#30253d'));material_gradient.setColorAt(1,QColor('#483554'))
+    p.fillPath(front_fascia_path(),material_gradient)
+    p.restore()
+
+
+def desk_surface(root,prefs):
+    # Compatibility/export helper; the live window uses paint_desk directly.
+    layer=QPixmap(2200,1360);layer.setDevicePixelRatio(2);layer.fill(Qt.GlobalColor.transparent)
+    p=QPainter(layer);p.setRenderHint(QPainter.RenderHint.Antialiasing);p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+    paint_desk(p,prefs,prepare_desk_material(root,prefs));p.end();return layer
 
 def draw_rgb(p,board,mode,elapsed):
     if mode=='off':return
-    p.save();p.setClipPath(tabletop_path(),Qt.ClipOperation.IntersectClip);p.setTransform(board,True)
+    p.save();p.setClipPath(desk_content_path(content_inset(p)),Qt.ClipOperation.IntersectClip);p.setTransform(board,True)
     r=QRectF(-13,-13,23*24+26,6.4*28+26)
     for spread,alpha in [(8,12),(5,25),(2,70)]:
         gradient=QLinearGradient(r.topLeft(),r.topRight())

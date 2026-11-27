@@ -1,16 +1,21 @@
-# Pirb Desk 0.10.2
+# Pirb Desk 0.10.3
 
 [English](README.md) · Chim bồ câu phản hồi bàn phím và chuột trên Windows.
 
 **Tên mới của PIRB Studio.** Giữ nguyên repo và vùng lưu dữ liệu để không mất ngôn ngữ, tư thế, ảnh riêng và âm lượng khi nâng cấp. Đây là app cộng đồng, không phải sản phẩm Pyth chính thức.
 
-![Pirb Desk với mặt bàn Pyth Classic](docs/desk-four-corners.jpg)
+![Pirb Desk với mặt bàn Pyth Classic](docs/desk-clean-border.png)
 
-### 0.10.2 — Đường bao bàn bốn góc
+### 0.10.3 — Làm sạch viền dưới
+
+Vẽ khung bàn tối trực tiếp ở độ phân giải màn hình, bỏ nét sáng quá mảnh và bước thu nhỏ lại đường biên. Bỏ đường khung phụ và họa tiết quá nhỏ sát mép trước để tránh các đoạn sáng đứt quãng khi thu nhỏ. Giới hạn ảnh nền/RGB/bóng bàn phím vào phía trong; chừa thêm một khoảng nhỏ dưới bàn phím. Khi nhấn phím, thay đúng điểm ảnh cũ trong ảnh gốc trước khi chiếu ra màn hình, tránh sót viền phím trắng/tím. Cache tự dựng lại khi đổi DPI màn hình.
+
+Đã thêm kiểm tra biên ảnh ở DPI 100/125/150/200%, trạng thái nhấn phím và đổi DPI. Các kiểm tra render này không thay thế thử thủ công mọi cấu hình desktop Windows.
+
+### Đường bao bàn bốn góc (từ 0.10.2)
 
 Toàn bộ đường bao bàn là **một hình bình hành**, cả hai cặp cạnh đối diện song song. Viền và dải cạnh được vẽ bên trong đường bao; không còn lớp độ dày đùn ra ngoài thành sáu góc. RGB cũng được giới hạn trong mặt bàn. Bản này thay thế cách sửa ở 0.10.1 vốn chỉ giảm độ dày.
 
-![Đường bao bàn bốn góc](docs/desk-four-corners.jpg)
 
 ### Các tính năng từ 0.10.0
 
@@ -35,14 +40,14 @@ Toàn bộ đường bao bàn là **một hình bình hành**, cả hai cặp c�
 
 ## Cài đặt
 
-1. Vào **Releases**, tải **Pirb_Desk_0.10.2_Windows_x64_Setup.exe**. **Code → Download ZIP** chỉ là mã nguồn, không phải bộ cài.
+1. Vào **Releases**, tải **Pirb_Desk_0.10.3_Windows_x64_Setup.exe**. **Code → Download ZIP** chỉ là mã nguồn, không phải bộ cài.
 2. Thoát hẳn PIRB bằng menu biểu tượng cạnh đồng hồ.
 3. Mở Setup, đồng ý cài cho tài khoản hiện tại.
 4. Mở **Pirb Desk** từ Desktop hoặc Start Menu.
 
-Không cần quyền quản trị hay tệp cập nhật Settings riêng. Thư mục cài: `%LOCALAPPDATA%\Programs\PIRBStudio\0.10.2\PirbDesk`.
+Không cần quyền quản trị hay tệp cập nhật Settings riêng. Thư mục cài: `%LOCALAPPDATA%\Programs\PIRBStudio\0.10.3\PirbDesk`.
 
-Bản portable: giải nén **toàn bộ** `Pirb_Desk_0.10.2_Windows_x64_Portable.zip`, mở `PirbDesk\PirbDesk.exe`, giữ `_internal` bên cạnh. Không mở trực tiếp trong WinRAR. Portable vẫn lưu tùy chọn vào hồ sơ Windows.
+Bản portable: giải nén **toàn bộ** `Pirb_Desk_0.10.3_Windows_x64_Portable.zip`, mở `PirbDesk\PirbDesk.exe`, giữ `_internal` bên cạnh. Không mở trực tiếp trong WinRAR. Portable vẫn lưu tùy chọn vào hồ sơ Windows.
 
 ## Cách sử dụng
 
@@ -59,9 +64,9 @@ Mọi thay đổi lưu tự động. Chỉ chạy một phiên PIRB. Không tự
 
 ## Đổi tên và nâng cấp từ PIRB Studio
 
-Tải bộ cài **Pirb_Desk_0.10.2_Windows_x64_Setup.exe**, thoát app cũ rồi cài. Shortcut mới tên **Pirb Desk**; Setup chỉ gỡ shortcut PIRB Studio cũ nếu nó trỏ đúng bản cài do app sở hữu. Không xóa các thư mục phiên bản cũ hoặc dữ liệu riêng.
+Tải bộ cài **Pirb_Desk_0.10.3_Windows_x64_Setup.exe**, thoát app cũ rồi cài. Shortcut mới tên **Pirb Desk**; Setup chỉ gỡ shortcut PIRB Studio cũ nếu nó trỏ đúng bản cài do app sở hữu. Không xóa các thư mục phiên bản cũ hoặc dữ liệu riêng.
 
-Bản phát hành cũng có **PIRB_Studio_0.10.2_Windows_x64_Setup.exe**: đây là bản sao cùng nội dung/checksum, chỉ để updater 0.9.x nhận được tên tệp quen thuộc. Cả hai cài cùng Pirb Desk, chỉ cần tải một file. Giữ repo `liemdak/pirb-studio`, registry/QSettings/app-data ID cũ là chủ ý tương thích, không phải đổi tên còn sót.
+Bản phát hành cũng có **PIRB_Studio_0.10.3_Windows_x64_Setup.exe**: đây là bản sao cùng nội dung/checksum, chỉ để updater 0.9.x nhận được tên tệp quen thuộc. Cả hai cài cùng Pirb Desk, chỉ cần tải một file. Giữ repo `liemdak/pirb-studio`, registry/QSettings/app-data ID cũ là chủ ý tương thích, không phải đổi tên còn sót.
 
 ## Tự nhận biết bản cập nhật
 
@@ -79,7 +84,7 @@ Chỉ khi đồng ý, app mới tải bộ cài x64, hiện tiến trình/nút H
 
 Thoát bản cũ trước khi cài. 0.10.0 đọc lại tùy chọn cũ; ngôn ngữ mặc định là tiếng Việt khi chưa có lựa chọn. Setup không xóa thư mục bản cũ hoặc dọn Downloads.
 
-Gỡ bản cài qua **Windows Settings → Apps → Pirb Desk 0.10.2 → Uninstall** hoặc `Uninstall.exe` trong thư mục cài. Tùy chọn và ảnh riêng vẫn giữ lại. Với portable: thoát rồi xóa thư mục giải nén; trình gỡ đi kèm chỉ dành cho đường dẫn của bản cài.
+Gỡ bản cài qua **Windows Settings → Apps → Pirb Desk 0.10.3 → Uninstall** hoặc `Uninstall.exe` trong thư mục cài. Tùy chọn và ảnh riêng vẫn giữ lại. Với portable: thoát rồi xóa thư mục giải nén; trình gỡ đi kèm chỉ dành cho đường dẫn của bản cài.
 
 Không mở được: chạy `_internal\support\DIAGNOSTICS.bat`, kiểm tra `%LOCALAPPDATA%\PIRBDesktop\startup-error.log` nếu có. Không có tiếng: kiểm tra thiết bị phát/Volume Mixer và tab Âm thanh. Không nhận phím từ app khác: thử một app mở bình thường, không nâng quyền. PIRB báo đã chạy: tìm biểu tượng ở khay hệ thống, có thể trong mũi tên cạnh đồng hồ.
 
